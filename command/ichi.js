@@ -87,6 +87,8 @@ case 'menu': case 'help': case '?': {
   let menu = `
 ╔════════
 ╠══ *OWNER MENU*
+╠ ${prefix}bc
+╠ ${prefix}bcgc
 ╠ ${prefix}join
 ╠ ${prefix}leave
 ╠ ${prefix}block
@@ -229,6 +231,37 @@ ${cpus.map((cpu, i) => `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Obje
   break
 
 //Owner Menu
+case 'bcgc': case 'bcgroup': {
+  if (!isOwner && !m.key.fromMe) return m.reply(mess.botOwner)
+  if (!text) throw `Text mana?\n\nExample : ${prefix + command} ${global.ownerName}`
+  let getGroups = await ichi.groupFetchAllParticipating()
+  let groups = Object.entries(getGroups).slice(0).map(entry => entry[1])
+  let anu = groups.map(v => v.id)
+  m.reply(mess.wait + '\nMohon Untuk Menunggu Sejenak')
+  for (let i of anu) {
+  await sleep(1500)
+  let txt = `*Broadcast ${ichi.user.name}*\n\n${text}\n`
+  ichi.sendButtonText(i, txt, m)
+  }
+  m.reply('Sukses Broadcast')
+  }
+  break
+case 'bc': case 'broadcast': case 'bcall': {
+  if (!isOwner && !m.key.fromMe) return m.reply(mess.botOwner)
+  if (!text) throw `Text mana?\n\nExample : ${prefix + command} ${global.ownerName}`
+  let anu = await store.chats.all().map(v => v.id)
+  let getGroups = await ichi.groupFetchAllParticipating()
+  let groups = Object.entries(getGroups).slice(0).map(entry => entry[1])
+  let anuan = groups.map(v => v.id)
+  m.reply(mess.wait + '\nMohon Untuk Menunggu Sejenak')
+  for (let yoi of anu && anuan) {
+  await sleep(1500)
+  let txt = `*Broadcast ${ichi.user.name}*\n\n${text}`
+  ichi.sendText(yoi, txt, m)
+  }
+  m.reply('Sukses Broadcast')
+  }
+  break
 case 'join': {
   if (!isOwner) return m.reply(mess.botOwner)
   if (!text) return m.reply('Masukkan Link Group!')
