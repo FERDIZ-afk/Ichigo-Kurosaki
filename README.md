@@ -12,6 +12,11 @@ Base Ini Free Untuk Semua, Tidak Untuk Diperjualbelikan Kecuali Lu Udah Tambahin
 * [`Fandyyy`](https://github.com/FBOTZ-YT)
 * [`Ferdi`](https://github.com/FERDIZ-afk)
 
+## Connect With Me
+* [`Whatsapp`](https://wa.me/6285609233482?text=Assalamualaikum)
+* [`Instagram`](https://instagram.com/_nzrlafndi)
+* [`More...`](https://linktr.ee/NzrlAfndi)
+
 ## Donate Me
 * [`Saweria`](https://saweria.co/Fandyy)
 * [`Gopay`](https://telegra.ph/file/4abd43eeab0c17edebff2.jpg)
