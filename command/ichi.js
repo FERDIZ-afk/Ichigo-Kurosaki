@@ -154,11 +154,11 @@ case 'menu': case 'help': case '?': {
 ╚════════
   `
   let but = [
-  {urlButton: {displayText: 'Source Code ♨️',url: 'https://github.com/FBOTZ-YT/Ichigo-Kurosaki'}}, 
+  {urlButton: {displayText: 'Source Code ♨️',url: 'https://github.com/NzrlAfndi/Ichigo-Kurosaki'}}, 
   {urlButton: {displayText: 'Website 🔗',url: 'https://linktr.ee/nzrlafndi'}}, 
-  {"quickReplyButton": {"displayText": "Rules 📚","id": `rules`},},
+  {"quickReplyButton": {"displayText": "Donasi 🗂️","id": `donasi`},},
   {"quickReplyButton": {"displayText": "Owner 👦","id": "owner"},},
-  {"quickReplyButton": {"displayText": "Donasi Bot 🗂️","id": `donasi`}}
+  {"quickReplyButton": {"displayText": "Status Bot ⌚","id": `ping`}}
   ]
   ichi.sendButtonImg(m.chat, menu, global.ownerName, global.thumb, but)
   }
