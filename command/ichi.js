@@ -451,6 +451,40 @@ case 'ephemeral': {
   }
   }
   break
+case 'group': {
+  if (!m.isGroup) return m.reply(mess.group)
+  if (!isBotAdmins) return m.reply(mess.botAdmin)
+  if (!isAdmins) return m.reply(mess.admin)
+  if (args[0] === 'close'){
+  await ichi.groupSettingUpdate(m.chat, 'announcement').then((res) => m.reply(`Sukses Menutup Group`)).catch((err) => m.reply(jsonformat(err)))
+  } else if (args[0] === 'open'){
+  await ichi.groupSettingUpdate(m.chat, 'not_announcement').then((res) => m.reply(`Sukses Membuka Group`)).catch((err) => m.reply(jsonformat(err)))
+  } else {
+  let buttonsgroup = [
+  { buttonId: `${command} open`, buttonText: { displayText: 'Open' }, type: 1 },
+  { buttonId: `${command} close`, buttonText: { displayText: 'Close' }, type: 1 }
+  ]
+  await ichi.sendButtonText(m.chat, buttonsgroup, `Mode ${command} 🕊️`, `Silahkan Klik Button Dibawah, Jika Button Tidak Muncul Ketik ${command} open/close`, m)
+  }
+  }
+  break
+case 'editinfo': {
+  if (!m.isGroup) return m.reply(mess.group)
+  if (!isBotAdmins) return m.reply(mess.botAdmin)
+  if (!isAdmins) return m.reply(mess.admin)
+  if (args[0] === 'open'){
+  await ichi.groupSettingUpdate(m.chat, 'unlocked').then((res) => m.reply(`Sukses Membuka Edit Info Group`)).catch((err) => m.reply(jsonformat(err)))
+  } else if (args[0] === 'close'){
+  await ichi.groupSettingUpdate(m.chat, 'locked').then((res) => m.reply(`Sukses Menutup Edit Info Group`)).catch((err) => m.reply(jsonformat(err)))
+  } else {
+  let buttonsinfo = [
+  { buttonId: `${command} open`, buttonText: { displayText: 'Open' }, type: 1 },
+  { buttonId: `${command} close`, buttonText: { displayText: 'Close' }, type: 1 }
+  ]
+  await ichi.sendButtonText(m.chat, buttons, `Mode Edit Info 🔥`, `Silahkan Klik Button Dibawah, Jika Button Tidak Muncul Ketik ${command} open/close`, m)
+  }
+  }
+  break
 
 //Maker Menu
 case 'sticker': case 's': case 'stickergif': case 'sgif': {
