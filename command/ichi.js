@@ -345,11 +345,11 @@ case 'linkgroup': case 'linkgc': {
   }
   break
 case 'revoke': {
-  if (!m.isGroup) return reply(mess.group)
-  if (!isBotAdmins) return reply(mess.botAdmin)
-  if (!isGroupAdmins) return reply(mess.admin)
+  if (!m.isGroup) return m.reply(mess.group)
+  if (!isBotAdmins) return m.reply(mess.botAdmin)
+  if (!isGroupAdmins) return m.reply(mess.admin)
   await ichi.groupRevokeInvite(from)
-  reply(mess.done)
+  m.reply(mess.done)
   }
   break
 case 'kick': {
@@ -376,8 +376,8 @@ case 'promote': {
   if (!m.isGroup) return m.reply(mess.group)
   if (!isBotAdmins) return m.reply(mess.botAdmin)
   if (!isAdmins) return m.reply(mess.admin)
-  if (!m.quoted && !text) return reply('Yang mau di promote siapa??')
-  if (args[0].startsWith('08')) return reply('Gunakan kode negara 62 Gan')
+  if (!m.quoted && !text) return m.reply('Yang mau di promote siapa??')
+  if (args[0].startsWith('08')) return m.reply('Gunakan kode negara 62 Gan')
   let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
   await ichi.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
   }
@@ -386,8 +386,8 @@ case 'demote': {
   if (!m.isGroup) return m.reply(mess.group)
   if (!isBotAdmins) return m.reply(mess.botAdmin)
   if (!isAdmins) return m.reply(mess.admin)
-  if (!m.quoted && !text) return reply('Yang mau di demote siapa??')
-  if (args[0].startsWith('08')) return reply('Gunakan kode negara 62 Gan')
+  if (!m.quoted && !text) return m.reply('Yang mau di demote siapa??')
+  if (args[0].startsWith('08')) return m.reply('Gunakan kode negara 62 Gan')
   let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
   await ichi.groupParticipantsUpdate(m.chat, [users], 'demote').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
   }
