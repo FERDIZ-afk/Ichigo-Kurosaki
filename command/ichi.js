@@ -137,6 +137,7 @@ case 'menu': case 'help': case '?': {
 
 ╔════════
 ╠══ *OTHER MENU*
+╠ ${prefix}delete
 ╠ ${prefix}donasi
 ╠ ${prefix}sewa
 ╠ ${prefix}sc
@@ -227,6 +228,13 @@ _CPU Core(s) Usage (${cpus.length} Core CPU)_
 ${cpus.map((cpu, i) => `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Object.keys(cpu.times).map(type => `- *${(type + '*').padEnd(6)}: ${(100 * cpu.times[type] / cpu.total).toFixed(2)}%`).join('\n')}`).join('\n\n')}` : ''}
   `.trim()
   m.reply(respon)
+  }
+  break
+case 'delete': case 'del': {
+  if (!m.quoted) throw false
+  let { chat, fromMe, id, isBaileys } = m.quoted
+  if (!isBaileys) throw 'The Message Didn't Come From a Bot!'
+  ichi.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
   }
   break
 
