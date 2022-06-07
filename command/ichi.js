@@ -347,7 +347,7 @@ case 'linkgroup': case 'linkgc': {
 case 'revoke': {
   if (!m.isGroup) return m.reply(mess.group)
   if (!isBotAdmins) return m.reply(mess.botAdmin)
-  if (!isGroupAdmins) return m.reply(mess.admin)
+  if (!isAdmins) return m.reply(mess.admin)
   await ichi.groupRevokeInvite(from)
   m.reply(mess.done)
   }
