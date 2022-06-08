@@ -73,7 +73,7 @@ const mentionUser = [...new Set([...(m.mentionedJid || []), ...(m.quoted ? [m.qu
 const isNumber = x => typeof x === 'number' && !isNaN(x)
 
 //database
-global.db = JSON.parse(fs.readFileSync('../storage/db.json'))
+global.db = JSON.parse(fs.readFileSync('./storage/db.json'))
 if (global.db) global.db = {
 chats: {},
 ...(global.db || {})
