@@ -72,6 +72,40 @@ const isAdmins = m.isGroup ? groupOwner.includes(m.sender) || groupAdmins.includ
 const mentionUser = [...new Set([...(m.mentionedJid || []), ...(m.quoted ? [m.quoted.sender] : [])])]
 const isNumber = x => typeof x === 'number' && !isNaN(x)
 
+//database
+global.db = JSON.parse(fs.readFileSync('../storage/db.json'))
+if (global.db) global.db = {
+chats: {},
+...(global.db || {})
+}
+
+try {
+let chats = global.db.chats[m.chat]
+if (typeof chats !== 'object') global.db.chats[m.chat] = {}
+if (chats) {
+if (!('antilink' in chats)) chats.antilink = false
+} else global.db.chats[m.chat] = {
+antilink: false
+}
+} catch (err) {
+console.error(err)
+}
+
+// Antilink
+if (db.chats[m.chat].antilink) {
+if (budy.match(`chat.whatsapp.com`)) {
+m.reply(`Link Grup Lain Terdeteksi 🤬\nMaaf Kamu Akan Di Kick !`)
+if (!isBotAdmins) return m.reply(mess.botAdmin)
+var gclink = (`https://chat.whatsapp.com/`+await ichi.groupInviteCode(m.chat))
+var isLinkThisGc = new RegExp(gclink, 'i')
+var isgclink = isLinkThisGc.test(m.text)
+if (isgclink) return m.reply(`Ehh Maaf Gak Jadi, Link Group Ini Ternyata 😆`)
+if (isAdmins) return m.reply(`Ehh Maaf Ternyata Kamu Admin 😁`)
+if (isOwner) return m.reply(`Ehh Maaf Kamu Ownerku Ternyata 😅`)
+ichi.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
+}
+}
+
 if (!ichi.public) {
 if (!m.key.fromMe && !isOwner) return
 }
@@ -101,6 +135,7 @@ case 'menu': case 'help': case '?': {
   
 ╔════════
 ╠══ *GROUP MENU*
+╠ ${prefix}antilink
 ╠ ${prefix}linkgroup
 ╠ ${prefix}revoke
 ╠ ${prefix}kick
@@ -337,7 +372,27 @@ case 'eval': {
   break
 
 //Group Menu
-case 'linkgroup': case 'linkgc': {
+case 'antilink':
+  if (!m.isGroup) return m.reply(mess.group)
+  if (!isBotAdmins) return m.reply(mess.botAdmin)
+  if (!isAdmins) return m.reply(mess.admin)
+  if (args[0] === "on") {
+  if (db.chats[m.chat].antilink) return m.reply(`Sudah Aktif Sebelumnya`)
+  db.chats[m.chat].antilink = true
+  m.reply(`Antilink Berhasil Di Aktifkan !`)
+  } else if (args[0] === "off") {
+  if (!db.chats[m.chat].antilink) return m.reply(`Sudah Nonaktif Sebelumnya`)
+  db.chats[m.chat].antilink = false
+  m.reply(`Antilink Berhasil Di Nonaktifkan !`)
+  } else {
+  let buttonsantilink = [
+  { buttonId: `${command} on`, buttonText: { displayText: 'Enable' }, type: 1 },
+  { buttonId: `${command} off`, buttonText: { displayText: 'Disable' }, type: 1 }
+  ]
+  await ichi.sendButtonText(m.chat, buttonsantilink, `Mode ${command} 🕊️`, `Silahkan Klik Button Dibawah, Jika Button Tidak Muncul Ketik ${command} on/off`, m)
+  }
+  break
+case 'linkgc': {
   if (!m.isGroup) return m.reply(mess.group)
   if (!isBotAdmins) return m.reply(mess.botAdmin)
   let response = await ichi.groupInviteCode(m.chat)
