@@ -265,13 +265,6 @@ ${cpus.map((cpu, i) => `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Obje
   m.reply(respon)
   }
   break
-case 'delete': case 'del': {
-  if (!m.quoted) throw false
-  let { chat, fromMe, id, isBaileys } = m.quoted
-  if (!isBaileys) throw 'The Message Didn't Come From a Bot!'
-  ichi.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
-  }
-  break
 
 //Owner Menu
 case 'bcgc': case 'bcgroup': {
