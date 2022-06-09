@@ -304,24 +304,24 @@ case 'join': {
   if (!isUrl(args[0]) && !args[0].includes('whatsapp.com')) throw 'Link Invalid!'
   m.reply(mess.wait)
   let result = args[0].split('https://chat.whatsapp.com/')[1]
-  await ichi.groupAcceptInvite(result).then((res) => m.reply(mess.done)).catch((err) => m.reply(fiturError(prefix)))
+  await ichi.groupAcceptInvite(result).then((res) => m.reply(mess.done)).catch((err) => m.reply('Fitur Error ❎'))
   }
   break
 case 'leave': {
   if (!isOwner) return m.reply(mess.botOwner)
-  await ichi.groupLeave(m.chat).then((res) => m.reply('Sayonara ðŸ‘‹\nSulit Di Kontrol Semoga Hari Kalian Mengontol')).catch((err) => m.reply(fiturError()))
+  await ichi.groupLeave(m.chat).then((res) => m.reply('Sayonara ðŸ‘‹\nSulit Di Kontrol Semoga Hari Kalian Mengontol')).catch((err) => m.reply('Fitur Error ❎'))
   }
   break
 case 'block': {
   if (!isOwner) return m.reply(mess.botOwner)
   let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-  await ichi.updateBlockStatus(users, 'block').then((res) => m.reply(mess.done)).catch((err) => m.reply(fiturError(prefix)))
+  await ichi.updateBlockStatus(users, 'block').then((res) => m.reply(mess.done)).catch((err) => m.reply('Fitur Error ❎'))
   }
   break
 case 'unblock': {
   if (!isOwner) return m.reply(mess.botOwner)
   let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-  await ichi.updateBlockStatus(users, 'unblock').then((res) => m.reply(mess.done)).catch((err) => m.reply(fiturError(prefix)))
+  await ichi.updateBlockStatus(users, 'unblock').then((res) => m.reply(mess.done)).catch((err) => m.reply('Fitur Error ❎'))
   }
   break
 case 'setppbot': {
