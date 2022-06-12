@@ -14,6 +14,8 @@ const cfonts = require('cfonts')
 const axios = require('axios')
 const FileType = require('file-type')
 const PhoneNumber = require('awesome-phonenumber')
+const lolcatjs = require('lolcatjs')
+const {Boom} = require("@hapi/boom")
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('../lib/exif')
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetchJson, await, sleep } = require('../lib/myfunc')
 const { state, saveState } = useSingleFileAuthState(`./${global.sessionName}.json`)
@@ -22,6 +24,7 @@ global.api = (name, path = '/', query = {}, apikeyqueryname) => (name in global.
 
 //Starting In Console
 async function startIchigo(){
+  
 cfonts.say('ICHIGO',{
 font: 'block',
 gradient: ['red','magenta'],
@@ -32,6 +35,8 @@ font: 'console',
 gradient: ['red','magenta'],
 align: 'center'
 })
+
+try{
 const ichi = makeWASocket({
 logger: pino({ level: 'silent' }),
 printQRInTerminal: true,
@@ -84,13 +89,47 @@ console.log(err)
 })
 
 //Connection Active
-ichi.ev.on('connection.update', async(update) => {
-const { connection, lastDisconnect } = update
-if ( connection === 'close' ) {
-lastDisconnect.error?.output?.statusCode  !==  DisconnectReason.loggedOut ? startIchigo() : console.log('Connection Disconnected!')
-}
-console.log('Connecting...', update)
+ichi.ev.on('connection.update', async (update) => {
+	const {
+		connection,
+		lastDisconnect
+	} = update
+	try {
+		if (connection === 'close') {
+			let reason = new Boom(lastDisconnect?.error)?.output.statusCode
+			if (reason === DisconnectReason.badSession) {
+				console.log(`Bad Session File, Please Delete Session and Scan Again`);
+			} else if (reason === DisconnectReason.connectionClosed) {
+				console.log("Connection closed, reconnecting....");
+				startIchigo();
+			} else if (reason === DisconnectReason.connectionLost) {
+				console.log("Connection Lost from Server, reconnecting...");
+				startIchigo();
+			} else if (reason === DisconnectReason.connectionReplaced) {
+				console.log("Connection Replaced, Another New Session Opened, Please Close Current Session First");
+			} else if (reason === DisconnectReason.loggedOut) {
+				console.log(`Device Logged Out, Please Scan Again And Run.`);
+			} else if (reason === DisconnectReason.restartRequired) {
+				console.log("Restart Required, Restarting...");
+				startIchigo();
+			} else if (reason === DisconnectReason.timedOut) {
+				console.log("Connection TimedOut, Reconnecting...");
+				startIchigo();
+			} else ichi.end(`Unknown DisconnectReason: ${reason}|${connection}`)
+		}
+		if (update.connection == "connecting" || update.receivedPendingNotifications == "false") {
+			lolcatjs.fromString(`[Sedang mengkoneksikan]`)
+		}
+		if (update.connection == "open" || update.receivedPendingNotifications == "true") {
+			lolcatjs.fromString(`[Connecting to] WhatsApp web`)
+			lolcatjs.fromString(`[Connected] ` + JSON.stringify(ichi.user, null, 2))
+		}
+	} catch (err) {
+		console.log(err)
+		startIchigo();
+	}
 })
+
 
 ichi.decodeJid = (jid) => {
   if (!jid) return jid
@@ -583,6 +622,10 @@ ichi.serializeM = (m) => smsg(ichi, m, store)
    }
 
    return ichi
+} catch (err) {
+console.log(err)
+startIchigo()
+}
 }
 
 startIchigo()
