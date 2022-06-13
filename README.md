@@ -13,6 +13,7 @@ Base Ini Free Untuk Semua, Tidak Untuk Diperjualbelikan Kecuali Lu Udah Tambahin
 * [`Ferdi`](https://github.com/FERDIZ-afk)
 
 ## Connect With Me
+* [`Group WhatsApp`](https://chat.whatsapp.com/CSqakw6x2wRIOWTPL5a6a9)
 * [`Whatsapp`](https://wa.me/6285609233482?text=Assalamualaikum)
 * [`Instagram`](https://instagram.com/_nzrlafndi)
 * [`More...`](https://linktr.ee/NzrlAfndi)
