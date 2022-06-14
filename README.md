@@ -54,8 +54,10 @@ apt install git -y
 apt install nodejs -y
 apt install ffmpeg -y
 git clone https://github.com/NzrlAfndi/Ichigo-Kurosaki
+pkg install yarn
 cd Ichigo-Kurosaki
-npm install
+yarn
+npm start
 ```
 
 ## Installing
