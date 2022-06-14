@@ -160,6 +160,8 @@ case 'menu': case 'help': case '?': {
 ╠ ${prefix}tovn
 ╠ ${prefix}togif
 ╠ ${prefix}tourl
+╠ ${prefix}removebg
+╠ ${prefix}estetik
 ╚════════
 
 ╔════════
@@ -552,6 +554,98 @@ case 'sticker': case 's': case 'stickergif': case 'sgif': {
   }
   }
   break
+
+
+//removebg
+case 'imagenobg': case 'removebg': case 'remove-bg': {
+	if (!quoted) throw m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+	if (!/image/.test(mime)) throw m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+	if (/webp/.test(mime)) throw m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+	let remobg = require('remove.bg')
+	let apirnobg = ['q61faXzzR5zNU6cvcrwtUkRU', 'S258diZhcuFJooAtHTaPEn4T', '5LjfCVAp4vVNYiTjq9mXJWHF', 'aT7ibfUsGSwFyjaPZ9eoJc61', 'BY63t7Vx2tS68YZFY6AJ4HHF', '5Gdq1sSWSeyZzPMHqz7ENfi8', '86h6d6u4AXrst4BVMD9dzdGZ', 'xp8pSDavAgfE5XScqXo9UKHF', 'dWbCoCb3TacCP93imNEcPxcL']
+	let apinobg = apirnobg[Math.floor(Math.random() * apirnobg.length)]
+	hmm = await './src/remobg-' + getRandom('')
+	localFile = await ichi.downloadAndSaveMediaMessage(quoted, hmm)
+	console.log(localFile)
+	outputFile = await './src/hremo-' + getRandom('.png')
+	m.reply(mess.wait)
+	try {
+		remobg.removeBackgroundFromImageFile({
+			path: localFile,
+			apiKey: apinobg,
+			size: "regular",
+			type: "auto",
+			scale: "100%",
+			outputFile
+		}).then(async (result) => {
+			//    console.log(result)
+			console.log(`File saved to ${outputFile}`);
+			await ichi.sendMessage(m.chat, {
+				image: fs.readFileSync(outputFile),
+				caption: "success"
+			}, {
+				quoted: m
+			})
+			const base64img = result.base64img;
+			await sleep(7000)
+			await fs.unlinkSync(localFile)
+			await fs.unlinkSync(outputFile)
+		}).catch((errors) => {
+			console.log(JSON.stringify(errors));
+		});
+	} catch (err) {
+		m.reply(util.format(err))
+		await fs.unlinkSync(localFile)
+	}
+}
+break
+
+
+		            case 'estetik': {
+		            	if (!quoted) throw reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+		            	if (!/image/.test(mime)) throw reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+		            	if (/webp/.test(mime)) throw reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+		            	let remobg = require('remove.bg')
+		            	let apirnobg = ['q61faXzzR5zNU6cvcrwtUkRU', 'S258diZhcuFJooAtHTaPEn4T', '5LjfCVAp4vVNYiTjq9mXJWHF', 'aT7ibfUsGSwFyjaPZ9eoJc61', 'BY63t7Vx2tS68YZFY6AJ4HHF', '5Gdq1sSWSeyZzPMHqz7ENfi8', '86h6d6u4AXrst4BVMD9dzdGZ', 'xp8pSDavAgfE5XScqXo9UKHF', 'dWbCoCb3TacCP93imNEcPxcL']
+		            	let apinobg = apirnobg[Math.floor(Math.random() * apirnobg.length)]
+
+		            	hmm = await './src/remobg-' + getRandom('')
+		            	localFile = await ichi.downloadAndSaveMediaMessage(quoted, hmm)
+		            	outputFile = './src/hremo-' + getRandom('.png')
+		            	m.reply(mess.wait)
+		            	try {
+		            		remobg.removeBackgroundFromImageFile({
+		            			path: localFile,
+		            			apiKey: apinobg,
+		            			size: "regular",
+		            			type: "auto",
+		            			scale: "100%",
+		            			outputFile
+		            		}).then(async result => {
+		            			console.log(outputFile)
+		            			let tes = await fs.readFileSync(outputFile)
+		            			let anu = await TelegraPh(outputFile)
+		            			console.log(anu)
+		            			let hsil = await getBuffer(`https://oni-chan.my.id/api/Fmake/estetik?picturl=${anu}`)
+		            			await sleep(9000)
+		            			await ichi.sendMessage(m.chat, {
+		            				image: hsil,
+		            				caption: "success"
+		            			}, {
+		            				quoted: m
+		            			})
+		            			await sleep(15000)
+		            			await fs.unlinkSync(localFile)
+		            			await fs.unlinkSync(outputFile)
+		            		})
+		            	} catch (err) {
+		            		m.reply(util.format(err))
+		            		await fs.unlinkSync(localFile)
+		            	}
+		            }
+		            break
+
+
 case 'toimage': case 'toimg': {
   if (!quoted) throw 'Reply Image'
   if (!/webp/.test(mime)) return m.reply(`Balas sticker dengan caption *${prefix + command}*`)
@@ -803,6 +897,7 @@ if (budy.startsWith('$')) {
 
   }
   } catch (err) {
+    console.log("error di bagian ichi.js "+util.format(err))
 //  m.reply(util.format(err))
   }
 }
