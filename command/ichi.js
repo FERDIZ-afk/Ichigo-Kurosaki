@@ -95,7 +95,7 @@ console.error(err)
 if (db.chats[m.chat].antilink) {
 if (budy.match(`chat.whatsapp.com`)) {
 m.reply(`Link Grup Lain Terdeteksi 🤬\nMaaf Kamu Akan Di Kick !`)
-if (!isBotAdmins) return m.reply(mess.botAdmin)
+if (!isBotAdmins) return //  buat ngediem in daripada nyepam m.reply(mess.botAdmin)
 var gclink = (`https://chat.whatsapp.com/`+await ichi.groupInviteCode(m.chat))
 var isLinkThisGc = new RegExp(gclink, 'i')
 var isgclink = isLinkThisGc.test(m.text)
@@ -162,6 +162,7 @@ case 'menu': case 'help': case '?': {
 ╠ ${prefix}tourl
 ╠ ${prefix}removebg
 ╠ ${prefix}estetik
+╠ ${prefix}ktpmaker
 ╚════════
 
 ╔════════
@@ -600,7 +601,6 @@ case 'imagenobg': case 'removebg': case 'remove-bg': {
 }
 break
 
-
 		            case 'estetik': {
 		            	if (!quoted) throw reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
 		            	if (!/image/.test(mime)) throw reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
@@ -645,6 +645,52 @@ break
 		            }
 		            break
 
+		case 'ktpmaker': {
+			if (args.length == 0) return m.reply(`*Pengunaan :*\n${prefix+command} Nik|Provinsi|Kabupaten|Nama|TempatTanggalLahir|JenisKel|Alamat|RtRw|KelDesa|Kecamatan|Agama|Statu|Pekerjaan|Region|Berlaku|golongan darah|LinkGambar\n\n${prefix+command} 35567778995|Provinsi Jawa Barat|Kabupaten Bekasi|jebeh Store|Bekasi |Laki-Laki|Bintara Jaya|02/05|Karang Indah|Bekasi Barat|Islam|Jomblo|anakjebeh|Indonesia|2021-2080|abc|https://i.ibb.co/qrQX5DC/IMG-20220401-WA0084.jpg\n\n\n*[warning]*\nsetiap input query setelah garis tengah | di larang penggunaan spasi\n*「 INFO IMAGE 」*\nUntuk Gambar Profil KTP\nUpload Dari Web Berikut Ini\n\nhttps://i.waifu.pics\nhttps://c.top4top.io\n\nCONTOH HASIL NYA\nhttps://i.ibb.co/qrQX5DC/IMG-20220401-WA0084.jpg\nhttps://k.top4top.io/p_2208264hn0.jpg`)
+			get_args = args.join(" ").split("|")
+			nik = get_args[0]
+			if (!nik) return m.reply('nomor induk keluaga kak pastikan jangan mirip NIK yang asli ya')
+			prov = get_args[1]
+			if (!prov) return m.reply('probinsi mana kak')
+			kabu = get_args[2]
+			if (!kabu) return m.reply('kabupaten mana kak')
+			name = get_args[3]
+			if (!name) return m.reply('nama nya siapa kak')
+			ttl = get_args[4]
+			if (!ttl) return m.reply('tempat tanggal lahir nya kak')
+			jk = get_args[5]
+			if (!jk) return m.reply('jenis kelamin pria atau wanita kak')
+			jl = get_args[6]
+			if (!jl) return m.reply('alamat rumah nya mana kak')
+			rtrw = get_args[7]
+			if (!rtrw) return m.reply('RT / RW berapa kak')
+			lurah = get_args[8]
+			if (!lurah) return m.reply('kelurahan mana kak')
+			camat = get_args[9]
+			if (!camat) return m.reply('kecamatan mana kak')
+			agama = get_args[10]
+			if (!agama) return m.reply('agama nya apa kak')
+			nikah = get_args[11]
+			if (!nikah) return m.reply('status belum ada')
+			kerja = get_args[12]
+			if (!kerja) return m.reply('pekerjaan belum ada')
+			warga = get_args[13]
+			if (!warga) return m.reply('region belum ada')
+			until = get_args[14]
+			if (!until) return m.reply('waktu berlaku belum ada')
+			gd = get_args[15]
+			if (!gd) return m.reply('golongan darah belum ada')
+			img = get_args[16]
+			if (!img) return m.reply('url image belum ada')
+      m.reply(mess.wait)
+			bikin = (`https://oni-chan.my.id/api/Fmake/ktpmaker?nik=${nik}&nama=${name}&ttl=${ttl}&jk=${jk}&gd=${gd}&almt=${jl}&rtw=${rtrw}&kel=${lurah}&kc=${camat}&agm=${agama}&st=${nikah}&krj=${kerja}&ngr=${warga}&blk=${until}&prv=${prov}&kab=${kabu}&picturl=${img}`)
+			console.log(bikin)
+			ardaktp = await getBuffer(bikin)
+		  await sleep(8000)
+			await ichi.sendMessage(from, { image: ardaktp, caption: `done kak` }, { quoted: m })
+		//	await sleep(5000)
+		}
+			break;
 
 case 'toimage': case 'toimg': {
   if (!quoted) throw 'Reply Image'

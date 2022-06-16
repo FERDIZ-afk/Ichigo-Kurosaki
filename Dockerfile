@@ -2,16 +2,23 @@ FROM node:lts-buster
 
 RUN apt-get update && \
   apt-get install -y \
+  neofetch \
   ffmpeg \
-  imagemagick \
-  webp && \
-  apt-get upgrade -y && \
+  wget \
+  yarn \
+  webp \
+  imagemagick && \
   rm -rf /var/lib/apt/lists/*
 
 COPY package.json .
 
-RUN npm install
+ENV TZ=Asia/Jakarta
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN yarn
+RUN pwd
+RUN ls
 
 COPY . .
 
-CMD ["node", "."]
+EXPOSE 5000
+CMD ["npm","run","dev"] #run via nodemon

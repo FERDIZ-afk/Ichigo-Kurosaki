@@ -10,7 +10,7 @@ Base Ini Free Untuk Semua, Tidak Untuk Diperjualbelikan Kecuali Lu Udah Tambahin
 * [`Adiwajshing`](https://github.com/adiwajshing)
 * [`Nurutomo`](https://github.com/Nurutomo)
 * [`Fandyyy`](https://github.com/FBOTZ-YT)
-* [`Ferdi`](https://github.com/FERDIZ-afk)
+* [`FERDIZ-afk`](https://github.com/FERDIZ-afk)
 
 ## Connect With Me
 * [`Group WhatsApp`](https://chat.whatsapp.com/CSqakw6x2wRIOWTPL5a6a9)
@@ -35,7 +35,8 @@ License: [MIT](https://en.wikipedia.org/wiki/MIT_License)
 ```bash
 git clone https://github.com/NzrlAfndi/Ichigo-Kurosaki
 cd Ichigo-Kurosaki
-npm install
+yarn
+npm start
 ```
 
 
@@ -53,8 +54,8 @@ apt update && apt upgrade
 apt install git -y
 apt install nodejs -y
 apt install ffmpeg -y
-git clone https://github.com/NzrlAfndi/Ichigo-Kurosaki
 pkg install yarn
+git clone https://github.com/NzrlAfndi/Ichigo-Kurosaki
 cd Ichigo-Kurosaki
 yarn
 npm start
@@ -63,6 +64,9 @@ npm start
 ## Installing
 ```bash
 $ node .
+#standr run
+$ npm run dev
+#run use nodemon
 ```
 
 ## ❗ Warning
