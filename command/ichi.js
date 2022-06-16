@@ -42,6 +42,7 @@ const { smsg, getGroupAdmins, formatp, tanggal, formatDate, getTime, isUrl, awai
 //Module Exports
 module.exports = ichi = async(ichi, m, chatUpdate, store) => {
 try {
+  //console.log(m)
 var body = (m.mtype === 'conversation') ? m.message.conversation : (m.mtype == 'imageMessage') ? m.message.imageMessage.caption : (m.mtype == 'videoMessage') ? m.message.videoMessage.caption : (m.mtype == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.mtype == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.mtype == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectReply.selectedRowId : (m.mtype == 'templateButtonReplyMessage') ? m.message.templateButtonReplyMessage.selectedId : (m.mtype === 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || m.text) : ''
 var budy = (typeof m.text == 'string' ? m.text : '')
 var prefix = prefa ? /^[°•π÷×¶∆£¢€¥®™+✓_=|~!?@#$%^&.©^]/gi.test(body) ? body.match(/^[°•π÷×¶∆£¢€¥®™+✓_=|~!?@#$%^&.©^]/gi)[0] : "" : prefa ?? global.prefix
@@ -71,6 +72,12 @@ const isBotAdmins = m.isGroup ? groupAdmins.includes(botNumber) : false
 const isAdmins = m.isGroup ? groupOwner.includes(m.sender) || groupAdmins.includes(m.sender) : false
 const mentionUser = [...new Set([...(m.mentionedJid || []), ...(m.quoted ? [m.quoted.sender] : [])])]
 const isNumber = x => typeof x === 'number' && !isNaN(x)
+
+
+const reply = (texto) => {
+			ichi.sendMessage(m.chat, { text: texto, mentions: [m.sender] }, {	quoted: m })
+		}
+
 
 //database
 global.db = JSON.parse(fs.readFileSync('./storage/db.json'))
@@ -105,6 +112,27 @@ if (isOwner) return m.reply(`Ehh Maaf Kamu Ownerku Ternyata 😅`)
 ichi.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
 }
 }
+
+
+		if (m.isGroup && m.mtype == 'viewOnceMessage') {
+			let teks = `「 *Anti ViewOnce Message* 」
+    
+    🤠 *Name* : ${pushname}
+    👾 *User* : @${m.sender.split("@")[0]}
+    ⏰ *Clock* : ${moment.tz('Asia/Jakarta').format('HH:mm:ss')} WIB
+    
+    💫 *MessageType* : ${m.mtype}`
+     reply(teks)
+			await sleep(500)
+			m.copyNForward(m.chat, true, {
+				readViewOnce: true
+			}, {
+				quoted: mek
+			}).catch(_ => m.reply('Mungkin dah pernah dibuka bot'))
+		}
+
+
+
 
 if (!ichi.public) {
 if (!m.key.fromMe && !isOwner) return
