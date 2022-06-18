@@ -39,6 +39,13 @@ const { pinterest, wallpaper, wikimedia, quotesAnime } = require('../lib/scraper
 const { bytesToSize, TelegraPh, UploadFileUgu, webp2mp4File} = require('../lib/uploader')
 const { smsg, getGroupAdmins, formatp, tanggal, formatDate, getTime, isUrl, await, sleep, clockString, msToDate, sort, toNumber, enumGetKey, runtime, fetchJson, getBuffer, jsonformat, delay, format, logic, generateProfilePicture, parseMention, getRandom, pickRandom} = require('../lib/myfunc')
 
+//database
+global.db = JSON.parse(fs.readFileSync('./storage/db.json'))
+if (global.db) global.db = {
+chats: {},
+...(global.db || {})
+}
+
 //Module Exports
 module.exports = ichi = async(ichi, m, chatUpdate, store) => {
 try {
@@ -77,14 +84,6 @@ const isNumber = x => typeof x === 'number' && !isNaN(x)
 const reply = (texto) => {
 			ichi.sendMessage(m.chat, { text: texto, mentions: [m.sender] }, {	quoted: m })
 		}
-
-
-//database
-global.db = JSON.parse(fs.readFileSync('./storage/db.json'))
-if (global.db) global.db = {
-chats: {},
-...(global.db || {})
-}
 
 try {
 let chats = global.db.chats[m.chat]
