@@ -130,8 +130,10 @@ ichi.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
 			}).catch(_ => m.reply('Mungkin dah pernah dibuka bot'))
 		}
 
-
-
+//Update Database
+setInterval(() => {
+fs.writeFileSync('./storage/db.json', JSON.stringify(global.db, null, 2))
+}, 60 * 1000)
 
 if (!ichi.public) {
 if (!m.key.fromMe && !isOwner) return
