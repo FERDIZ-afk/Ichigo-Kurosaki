@@ -1,7 +1,7 @@
 {
   "name": "ichigo-kurosaki",
   "version": "1.0.0",
-  "description": "Nganu",
+  "description": "Bot Kok Wangsap",
   "main": "connect/index.js",
   "type": "commonjs",
   "scripts": {
@@ -23,7 +23,7 @@
   "author": "Fandyyy",
   "license": "MIT",
   "dependencies": {
-    "@adiwajshing/baileys": "^4.1.0",
+    "@adiwajshing/baileys": "^4.2.0",
     "@adiwajshing/keyed-db": "^0.2.4",
     "@hapi/boom": "^10.0.0",
     "awesome-phonenumber": "^2.64.0",
@@ -71,10 +71,10 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FBOTZ-YT/Ichigo-Kurosaki.git"
+    "url": "git+https://github.com/NzrlAfndi/Ichigo-Kurosaki.git"
   },
   "bugs": {
-    "url": "https://github.com/FBOTZ-YT/Ichigo-Kurosaki/issues"
+    "url": "https://github.com/NzrlAfndi/Ichigo-Kurosaki/issues"
   },
-  "homepage": "https://github.com/FBOTZ-YT/Ichigo-Kurosaki#readme"
+  "homepage": "https://github.com/NzrlAfndi/Ichigo-Kurosaki#readme"
 }
