@@ -81,6 +81,12 @@ ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: 
 } else if (anu.action == 'remove') {
 teksbye = `Sayonaraa @${num.split("@")[0]} 👋`
 ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: teksbye })
+} else if (anu.action == 'promote') {
+tekspromo = `Selamat Ya @${num.split("@")[0]} Atas Kenaikan Jabatannya Di Grup ${metadata.subject} 🎉`
+ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: tekspromo })
+} else if (anu.action == 'demote') {
+teksdemo = `Nice Try @${num.split("@")[0]} Atas Penurunan Jabatannya Di Grup ${metadata.subject} 😔`
+ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: teksdemo })
 }
 }
 } catch (err) {
