@@ -177,7 +177,7 @@ try{
 	
 } catch (err) {
 	  console.log('error di connection.update'+err)
-	  startfdz();
+	  startIchigo();
 	}
 	
 })
