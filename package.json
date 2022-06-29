@@ -5,8 +5,8 @@
   "main": "connect/index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node connect/index.js",
-    "dev": "nodemon app.js"
+    "start": "node main.js",
+    "dev": "nodemon main.js"
   },
   "nodemonConfig": {
     "ext": "js,html,sh,py"

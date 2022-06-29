@@ -38,9 +38,12 @@ const hour_now = moment().format('HH:mm:ss')
 const { pinterest, wallpaper, wikimedia, quotesAnime } = require('../lib/scraper')
 const { bytesToSize, TelegraPh, UploadFileUgu, webp2mp4File} = require('../lib/uploader')
 const { smsg, getGroupAdmins, formatp, tanggal, formatDate, getTime, isUrl, await, sleep, clockString, msToDate, sort, toNumber, enumGetKey, runtime, fetchJson, getBuffer, jsonformat, delay, format, logic, generateProfilePicture, parseMention, getRandom, pickRandom} = require('../lib/myfunc')
+const dbog = require('../lib/Database.js')
+const dbmesseg = new dbog()
+
 
 //database
-global.db = JSON.parse(fs.readFileSync('./storage/db.json'))
+global.db = {} || JSON.parse(fs.readFileSync('./storage/db.json'))
 if (global.db) global.db = {
 chats: {},
 ...(global.db || {})
@@ -50,6 +53,8 @@ chats: {},
 module.exports = ichi = async(ichi, m, chatUpdate, store) => {
 try {
   //console.log(m)
+
+
 var body = (m.mtype === 'conversation') ? m.message.conversation : (m.mtype == 'imageMessage') ? m.message.imageMessage.caption : (m.mtype == 'videoMessage') ? m.message.videoMessage.caption : (m.mtype == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.mtype == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.mtype == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectReply.selectedRowId : (m.mtype == 'templateButtonReplyMessage') ? m.message.templateButtonReplyMessage.selectedId : (m.mtype === 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || m.text) : ''
 var budy = (typeof m.text == 'string' ? m.text : '')
 var prefix = prefa ? /^[°•π÷×¶∆£¢€¥®™+✓_=|~!?@#$%^&.©^]/gi.test(body) ? body.match(/^[°•π÷×¶∆£¢€¥®™+✓_=|~!?@#$%^&.©^]/gi)[0] : "" : prefa ?? global.prefix
@@ -69,6 +74,8 @@ const { type, quotedMsg, mentioned, now, fromMe } = m
 const more = String.fromCharCode(8206)
 const readmore = more.repeat(4001)
 
+if (m && m.mtype == "protocolMessage") ichi.ev.emit("message.delete", m.message.protocolMessage.key);
+
 const isGroup = m.key.remoteJid.endsWith('@g.us')
 const groupMetadata = m.isGroup ? await ichi.groupMetadata(m.chat).catch(e => {}) : ''
 const groupName = m.isGroup ? groupMetadata.subject : ''
@@ -86,19 +93,32 @@ const reply = (texto) => {
 		}
 
 try {
+  if (!m.isGroup) return 
 let chats = global.db.chats[m.chat]
 if (typeof chats !== 'object') global.db.chats[m.chat] = {}
 if (chats) {
 if (!('antilink' in chats)) chats.antilink = false
+if (!('antidelete' in chats)) chats.antidelete = false
+if (!('antiviewone' in chats)) chats.antiviewone = false
 } else global.db.chats[m.chat] = {
-antilink: false
+antilink: false,
+antidelete: false,
+antiviewone: false
+
 }
 } catch (err) {
 console.error(err)
 }
 
+//anti delete
+if (db.chats[m.chat].antidelete) {
+    ichi.addMessage(m, m.mtype);
+}
+
+
 // Antilink
 if (db.chats[m.chat].antilink) {
+if (!m.isGroup) return 
 if (budy.match(`chat.whatsapp.com`)) {
 m.reply(`Link Grup Lain Terdeteksi 🤬\nMaaf Kamu Akan Di Kick !`)
 if (!isBotAdmins) return //  buat ngediem in daripada nyepam m.reply(mess.botAdmin)
@@ -112,7 +132,8 @@ ichi.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
 }
 }
 
-
+if (db.chats[m.chat].antiviewone) {
+if (!m.isGroup) return 
 		if (m.isGroup && m.mtype == 'viewOnceMessage') {
 			let teks = `「 *Anti ViewOnce Message* 」
     
@@ -129,7 +150,7 @@ ichi.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
 				quoted: mek
 			}).catch(_ => m.reply('Mungkin dah pernah dibuka bot'))
 		}
-
+}
 //Update Database
 setInterval(() => {
 fs.writeFileSync('./storage/db.json', JSON.stringify(global.db, null, 2))
@@ -139,12 +160,19 @@ if (!ichi.public) {
 if (!m.key.fromMe && !isOwner) return
 }
 
-//Push Message To Console
-if (m.message) {
+//Push command To Console
+if (command) {
 console.log('\x1b[1;31m~\x1b[1;37m>', '[\x1b[1;32m ICHI \x1b[1;37m]', time, chalk.green(budy || m.mtype), 'Dari', chalk.blue(pushname), 'Di', chalk.yellow(groupName ? groupName : 'Private Chat' ), 'args :', chalk.white(args.length))
 }
 
 switch(command) {
+
+case 'resetdbpesan': case 'resetdb': case 'resetdatabase': {
+  fs.writeFileSync('./database/mess.json', JSON.stringify([], null, 2))
+  m.reply("success")
+}
+break;
+
 
 case 'menu': case 'help': case '?': {
   let menu = `
@@ -165,6 +193,8 @@ case 'menu': case 'help': case '?': {
 ╔════════
 ╠══ *GROUP MENU*
 ╠ ${prefix}antilink
+╠ ${prefix}Antidelete
+╠ ${prefix}antiviewone
 ╠ ${prefix}linkgroup
 ╠ ${prefix}revoke
 ╠ ${prefix}kick
@@ -301,7 +331,7 @@ ${cpus.map((cpu, i) => `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Obje
 //Owner Menu
 case 'bcgc': case 'bcgroup': {
   if (!isOwner && !m.key.fromMe) return m.reply(mess.botOwner)
-  if (!text) throw `Text mana?\n\nExample : ${prefix + command} ${global.ownerName}`
+  if (!text) return `Text mana?\n\nExample : ${prefix + command} ${global.ownerName}`
   let getGroups = await ichi.groupFetchAllParticipating()
   let groups = Object.entries(getGroups).slice(0).map(entry => entry[1])
   let anu = groups.map(v => v.id)
@@ -316,7 +346,7 @@ case 'bcgc': case 'bcgroup': {
   break
 case 'bc': case 'broadcast': case 'bcall': {
   if (!isOwner && !m.key.fromMe) return m.reply(mess.botOwner)
-  if (!text) throw `Text mana?\n\nExample : ${prefix + command} ${global.ownerName}`
+  if (!text) return `Text mana?\n\nExample : ${prefix + command} ${global.ownerName}`
   let anu = await store.chats.all().map(v => v.id)
   let getGroups = await ichi.groupFetchAllParticipating()
   let groups = Object.entries(getGroups).slice(0).map(entry => entry[1])
@@ -333,7 +363,7 @@ case 'bc': case 'broadcast': case 'bcall': {
 case 'join': {
   if (!isOwner) return m.reply(mess.botOwner)
   if (!text) return m.reply('Masukkan Link Group!')
-  if (!isUrl(args[0]) && !args[0].includes('whatsapp.com')) throw 'Link Invalid!'
+  if (!isUrl(args[0]) && !args[0].includes('whatsapp.com')) return 'Link Invalid!'
   m.reply(mess.wait)
   let result = args[0].split('https://chat.whatsapp.com/')[1]
   await ichi.groupAcceptInvite(result).then((res) => m.reply(mess.done)).catch((err) => m.reply('Fitur Error ❎'))
@@ -358,14 +388,13 @@ case 'unblock': {
   break
 case 'setppbot': {
   if (!isOwner) return m.reply(mess.botOwner)
-  if (!quoted) throw `Kirim/m.reply Image Dengan Caption ${prefix + command}`
-  if (!/image/.test(mime)) throw `Kirim/m.reply Image Dengan Caption ${prefix + command}`
-  if (/webp/.test(mime)) throw `Kirim/m.reply Image Dengan Caption ${prefix + command}`
+  if (!quoted) return m.reply(`Kirim/m.reply Image Dengan Caption ${prefix + command}`)
+  if (!/image/.test(mime)) return m.reply(`Kirim/reply Image Dengan Caption ${prefix + command}`)
+  if (/webp/.test(mime)) return m.reply(`Kirim/reply Image Dengan Caption ${prefix + command}`)
   let media = await ichi.downloadAndSaveMediaMessage(quoted)
-  //await ichi.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
-  //m.reply(mess.done)
-  //ppbotfull pakai ini klo gamau full pake yg atas
-  function _0x49cf(){const _0x9b0f7d=['9KyrHPr','../lib/myfunc','reply','12RYeGtN','4265090lbwaPY','1401088PgYIZS','1389447XXtgPF','35NuZwqN','26907NpCGwp','unlinkSync','full','162zVwjUV','1110488XzVqKr','done','query','updateProfilePicture','w:profile:picture','16369690GwkEFO','7688978khIfGs'];_0x49cf=function(){return _0x9b0f7d;};return _0x49cf();}const _0x56cbfb=_0x2c12;function _0x2c12(_0x19a724,_0x12823b){const _0x49cf8f=_0x49cf();return _0x2c12=function(_0x2c1269,_0x39d865){_0x2c1269=_0x2c1269-0xb3;let _0x53bb04=_0x49cf8f[_0x2c1269];return _0x53bb04;},_0x2c12(_0x19a724,_0x12823b);}(function(_0x152d69,_0x453c40){const _0x2c6a32=_0x2c12,_0x3e9c91=_0x152d69();while(!![]){try{const _0x426346=parseInt(_0x2c6a32(0xb4))/0x1+parseInt(_0x2c6a32(0xb9))/0x2*(-parseInt(_0x2c6a32(0xb6))/0x3)+parseInt(_0x2c6a32(0xb3))/0x4+-parseInt(_0x2c6a32(0xc5))/0x5*(parseInt(_0x2c6a32(0xc4))/0x6)+-parseInt(_0x2c6a32(0xb5))/0x7*(parseInt(_0x2c6a32(0xba))/0x8)+parseInt(_0x2c6a32(0xc1))/0x9*(parseInt(_0x2c6a32(0xbf))/0xa)+parseInt(_0x2c6a32(0xc0))/0xb;if(_0x426346===_0x453c40)break;else _0x3e9c91['push'](_0x3e9c91['shift']());}catch(_0x1a053b){_0x3e9c91['push'](_0x3e9c91['shift']());}}}(_0x49cf,0xe7b72));try{if(args[0x0]==_0x56cbfb(0xb8)){const {generateProfilePicture}=require(_0x56cbfb(0xc2));var {img}=await generateProfilePicture(media);await ichi[_0x56cbfb(0xbc)]({'tag':'iq','attrs':{'to':botNumber,'type':'set','xmlns':_0x56cbfb(0xbe)},'content':[{'tag':'picture','attrs':{'type':'image'},'content':img}]}),m['reply'](mess[_0x56cbfb(0xbb)]),await delay(0x1388),fs[_0x56cbfb(0xb7)](media);}else await ichi[_0x56cbfb(0xbd)](botNumber,{'url':media}),await delay(0x1388),fs['unlinkSync'](media);m['reply'](mess[_0x56cbfb(0xbb)]);}catch(_0x138bcd){m[_0x56cbfb(0xc3)]('Gagal\x20Mengganti\x20Photo\x20Profile\x0a'+_0x138bcd);}
+  m.reply(mess.wait)
+ await ichi.updateProfilePicture(ichi.user.jid, media).then(() => reply('Success update profile picture bot')).catch(reply)
+// suport full image 
   }
   break
 case 'public': {
@@ -419,6 +448,49 @@ case 'antilink':
   await ichi.sendButtonText(m.chat, buttonsantilink, `Mode ${command} 🕊️`, `Silahkan Klik Button Dibawah, Jika Button Tidak Muncul Ketik ${command} on/off`, m)
   }
   break
+
+case 'antidelete':
+  if (!m.isGroup) return m.reply(mess.group)
+  if (!isBotAdmins) return m.reply(mess.botAdmin)
+  if (!isAdmins) return m.reply(mess.admin)
+  if (args[0] === "on") {
+  if (db.chats[m.chat].antidelete) return m.reply(`Sudah Aktif Sebelumnya`)
+  db.chats[m.chat].antidelete = true
+  m.reply(`Antilink Berhasil Di Aktifkan !`)
+  } else if (args[0] === "off") {
+  if (!db.chats[m.chat].antidelete) return m.reply(`Sudah Nonaktif Sebelumnya`)
+  db.chats[m.chat].antidelete = false
+  m.reply(`Antilink Berhasil Di Nonaktifkan !`)
+  } else {
+  let buttonsantilink = [
+  { buttonId: `${command} on`, buttonText: { displayText: 'Enable' }, type: 1 },
+  { buttonId: `${command} off`, buttonText: { displayText: 'Disable' }, type: 1 }
+  ]
+  await ichi.sendButtonText(m.chat, buttonsantilink, `Mode ${command} 🕊️`, `Silahkan Klik Button Dibawah, Jika Button Tidak Muncul Ketik ${command} on/off`, m)
+  }
+  break
+
+case 'antiviewone':
+  if (!m.isGroup) return m.reply(mess.group)
+  if (!isBotAdmins) return m.reply(mess.botAdmin)
+  if (!isAdmins) return m.reply(mess.admin)
+  if (args[0] === "on") {
+  if (db.chats[m.chat].antiviewone) return m.reply(`Sudah Aktif Sebelumnya`)
+  db.chats[m.chat].antiviewone = true
+  m.reply(`Antilink Berhasil Di Aktifkan !`)
+  } else if (args[0] === "off") {
+  if (!db.chats[m.chat].antiviewone) return m.reply(`Sudah Nonaktif Sebelumnya`)
+  db.chats[m.chat].antiviewone = false
+  m.reply(`Antilink Berhasil Di Nonaktifkan !`)
+  } else {
+  let buttonsantilink = [
+  { buttonId: `${command} on`, buttonText: { displayText: 'Enable' }, type: 1 },
+  { buttonId: `${command} off`, buttonText: { displayText: 'Disable' }, type: 1 }
+  ]
+  await ichi.sendButtonText(m.chat, buttonsantilink, `Mode ${command} 🕊️`, `Silahkan Klik Button Dibawah, Jika Button Tidak Muncul Ketik ${command} on/off`, m)
+  }
+  break
+
 case 'linkgc': {
   if (!m.isGroup) return m.reply(mess.group)
   if (!isBotAdmins) return m.reply(mess.botAdmin)
@@ -478,7 +550,7 @@ case 'setname': case 'setsubject': {
   if (!m.isGroup) return m.reply(mess.group)
   if (!isBotAdmins) return m.reply(mess.botAdmin)
   if (!isAdmins) return m.reply(mess.admin)
-  if (!text) throw 'Text ?'
+  if (!text) return 'Text ?'
   await ichi.groupUpdateSubject(m.chat, text).then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
   }
   break
@@ -486,7 +558,7 @@ case 'setdesc': case 'setdesk': {
   if (!m.isGroup) return m.reply(mess.group)
   if (!isBotAdmins) return m.reply(mess.botAdmin)
   if (!isAdmins) return m.reply(mess.admin)
-  if (!text) throw 'Text ?'
+  if (!text) return 'Text ?'
   await ichi.groupUpdateDescription(m.chat, text).then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
   }
   break
@@ -497,11 +569,10 @@ case 'setppgroup': case 'setppgrup': case 'setppgc': {
   if (!/image/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
   if (/webp/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
   let media = await ichi.downloadAndSaveMediaMessage(quoted)
-  //await ichi.updateProfilePicture(m.chat, { url: media }).catch((err) => fs.unlinkSync(media))
-  //m.reply(mess.done)
-  //Pakai yang atas klo gamau PP nya full
+    m.reply(mess.wait)
+  await ichi.updateProfilePicture(from, media).then(() => reply('Success update profile picture bot')).catch(reply)
+
   //add code WM FDZ
-  function _0x382b(){const _0x41f6d8=['343029kFywYG','961697tJzXaM','36523ULquDa','12agkKvD','reply','13UtaSto','full','../lib/myfunc','done','18YqnLvV','10CiBLLG','1656SvYoaw','7749AXLxnF','16479TPjbyi','updateProfilePicture','8GJnVdt','chat','unlinkSync','query','104628ghfnZu','33450HsMZEb','set'];_0x382b=function(){return _0x41f6d8;};return _0x382b();}function _0x3888(_0x223359,_0x11aa3a){const _0x382bfb=_0x382b();return _0x3888=function(_0x38883f,_0x5054a7){_0x38883f=_0x38883f-0x1af;let _0x3067db=_0x382bfb[_0x38883f];return _0x3067db;},_0x3888(_0x223359,_0x11aa3a);}const _0x2f7000=_0x3888;(function(_0x1f1b20,_0x2eefed){const _0x5e4083=_0x3888,_0x5c1631=_0x1f1b20();while(!![]){try{const _0x40c889=-parseInt(_0x5e4083(0x1be))/0x1*(-parseInt(_0x5e4083(0x1bf))/0x2)+parseInt(_0x5e4083(0x1bc))/0x3*(parseInt(_0x5e4083(0x1b5))/0x4)+parseInt(_0x5e4083(0x1ba))/0x5*(-parseInt(_0x5e4083(0x1af))/0x6)+-parseInt(_0x5e4083(0x1b2))/0x7*(parseInt(_0x5e4083(0x1b1))/0x8)+parseInt(_0x5e4083(0x1b3))/0x9*(parseInt(_0x5e4083(0x1b0))/0xa)+-parseInt(_0x5e4083(0x1bd))/0xb+parseInt(_0x5e4083(0x1b9))/0xc*(parseInt(_0x5e4083(0x1c1))/0xd);if(_0x40c889===_0x2eefed)break;else _0x5c1631['push'](_0x5c1631['shift']());}catch(_0x41cd48){_0x5c1631['push'](_0x5c1631['shift']());}}}(_0x382b,0x1db80));try{if(args[0x0]==_0x2f7000(0x1c2)){const {generateProfilePicture}=require(_0x2f7000(0x1c3));var {img}=await generateProfilePicture(media);await ichi[_0x2f7000(0x1b8)]({'tag':'iq','attrs':{'to':m[_0x2f7000(0x1b6)],'type':_0x2f7000(0x1bb),'xmlns':'w:profile:picture'},'content':[{'tag':'picture','attrs':{'type':'image'},'content':img}]}),m[_0x2f7000(0x1c0)](mess[_0x2f7000(0x1c4)]),await delay(0xbb8),fs[_0x2f7000(0x1b7)](media);}else await ichi[_0x2f7000(0x1b4)](m[_0x2f7000(0x1b6)],{'url':media}),await delay(0xbb8),fs['unlinkSync'](media);await m[_0x2f7000(0x1c0)](mess[_0x2f7000(0x1c4)]);}catch(_0x4a156a){m[_0x2f7000(0x1c0)]('Gagal\x20Mengganti\x20Photo\x20Profile\x0a'+_0x4a156a);}
   }
   break
 case 'tagall': {
@@ -585,7 +656,7 @@ case 'sticker': case 's': case 'stickergif': case 'sgif': {
   let encmedia = await ichi.sendVideoAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
   await fs.unlinkSync(encmedia)
   } else {
-  throw `Kirim Gambar/Video Dengan Caption ${prefix + command}\nDurasi Video 1-9 Detik`
+  return `Kirim Gambar/Video Dengan Caption ${prefix + command}\nDurasi Video 1-9 Detik`
   }
   }
   break
@@ -593,9 +664,9 @@ case 'sticker': case 's': case 'stickergif': case 'sgif': {
 
 //removebg
 case 'imagenobg': case 'removebg': case 'remove-bg': {
-	if (!quoted) throw m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
-	if (!/image/.test(mime)) throw m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
-	if (/webp/.test(mime)) throw m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+	if (!quoted) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+	if (!/image/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+	if (/webp/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
 	let remobg = require('remove.bg')
 	let apirnobg = ['q61faXzzR5zNU6cvcrwtUkRU', 'S258diZhcuFJooAtHTaPEn4T', '5LjfCVAp4vVNYiTjq9mXJWHF', 'aT7ibfUsGSwFyjaPZ9eoJc61', 'BY63t7Vx2tS68YZFY6AJ4HHF', '5Gdq1sSWSeyZzPMHqz7ENfi8', '86h6d6u4AXrst4BVMD9dzdGZ', 'xp8pSDavAgfE5XScqXo9UKHF', 'dWbCoCb3TacCP93imNEcPxcL']
 	let apinobg = apirnobg[Math.floor(Math.random() * apirnobg.length)]
@@ -636,9 +707,9 @@ case 'imagenobg': case 'removebg': case 'remove-bg': {
 break
 
 		            case 'estetik': {
-		            	if (!quoted) throw reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
-		            	if (!/image/.test(mime)) throw reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
-		            	if (/webp/.test(mime)) throw reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+		            	if (!quoted) return reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+		            	if (!/image/.test(mime)) return reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
+		            	if (/webp/.test(mime)) return reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
 		            	let remobg = require('remove.bg')
 		            	let apirnobg = ['q61faXzzR5zNU6cvcrwtUkRU', 'S258diZhcuFJooAtHTaPEn4T', '5LjfCVAp4vVNYiTjq9mXJWHF', 'aT7ibfUsGSwFyjaPZ9eoJc61', 'BY63t7Vx2tS68YZFY6AJ4HHF', '5Gdq1sSWSeyZzPMHqz7ENfi8', '86h6d6u4AXrst4BVMD9dzdGZ', 'xp8pSDavAgfE5XScqXo9UKHF', 'dWbCoCb3TacCP93imNEcPxcL']
 		            	let apinobg = apirnobg[Math.floor(Math.random() * apirnobg.length)]
@@ -727,14 +798,14 @@ break
 			break;
 
 case 'toimage': case 'toimg': {
-  if (!quoted) throw 'Reply Image'
+  if (!quoted) return 'Reply Image'
   if (!/webp/.test(mime)) return m.reply(`Balas sticker dengan caption *${prefix + command}*`)
   m.reply(mess.wait)
   let media = await ichi.downloadAndSaveMediaMessage(quoted)
   let ran = await getRandom('.png')
   exec(`ffmpeg -i ${media} ${ran}`, (err) => {
   fs.unlinkSync(media)
-  if (err) throw err
+  if (err) return err
   let buffer = fs.readFileSync(ran)
   ichi.sendMessage(m.chat, { image: buffer }, { quoted: m })
   fs.unlinkSync(ran)
@@ -742,8 +813,8 @@ case 'toimage': case 'toimg': {
   }
   break
 case 'tomp4': case 'tovideo': {
-  if (!quoted) throw 'Reply Image'
-  if (!/webp/.test(mime)) throw `balas stiker dengan caption *${prefix + command}*`
+  if (!quoted) return 'Reply Image'
+  if (!/webp/.test(mime)) return `balas stiker dengan caption *${prefix + command}*`
   m.reply(mess.wait)
   let { webp2mp4File } = require('../lib/uploader')
   let media = await ichi.downloadAndSaveMediaMessage(quoted)
@@ -753,8 +824,8 @@ case 'tomp4': case 'tovideo': {
   }
   break
 case 'toaud': case 'toaudio': {
-  if (!/video/.test(mime) && !/audio/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
-  if (!quoted) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
+  if (!/video/.test(mime) && !/audio/.test(mime)) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
+  if (!quoted) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
   m.reply(mess.wait)
   let media = await quoted.download()
   let { toAudio } = require('../lib/converter')
@@ -763,9 +834,9 @@ case 'toaud': case 'toaudio': {
   }
   break
 case 'tomp3': {
-  if (/document/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
-  if (!/video/.test(mime) && !/audio/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
-  if (!quoted) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
+  if (/document/.test(mime)) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
+  if (!/video/.test(mime) && !/audio/.test(mime)) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
+  if (!quoted) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
   m.reply(mess.wait)
   let media = await quoted.download()
   let { toAudio } = require('../lib/converter')
@@ -774,8 +845,8 @@ case 'tomp3': {
   }
   break
 case 'tovn': case 'toptt': {
-  if (!/video/.test(mime) && !/audio/.test(mime)) throw `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
-  if (!quoted) throw `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
+  if (!/video/.test(mime) && !/audio/.test(mime)) return `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
+  if (!quoted) return `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
   m.reply(mess.wait)
   let media = await quoted.download()
   let { toPTT } = require('../lib/converter')
@@ -784,8 +855,8 @@ case 'tovn': case 'toptt': {
   }
   break
 case 'togif': {
-  if (!quoted) throw 'Reply Image'
-  if (!/webp/.test(mime)) throw `balas stiker dengan caption *${prefix + command}*`
+  if (!quoted) return 'Reply Image'
+  if (!/webp/.test(mime)) return `balas stiker dengan caption *${prefix + command}*`
   m.reply(mess.wait)
   let { webp2mp4File } = require('../lib/uploader')
   let media = await ichi.downloadAndSaveMediaMessage(quoted)
@@ -837,7 +908,7 @@ case 'quotesanime': {
   }
   break
 case 'wikimedia': {
-  if (!text) throw 'Masukkan Query Title'
+  if (!text) return 'Masukkan Query Title'
   let wiki = await wikimedia(text)
   result = wiki[Math.floor(Math.random() * wiki.length)]
   let buttons = [{buttonId: `wikimedia ${text}`, buttonText: {displayText: 'Next Result'}, type: 1}]
@@ -896,7 +967,7 @@ case 'ytmp3': case 'ytaudio': case 'yta': {
   break
 case 'yts': case 'ytsearch': {
   m.reply(mess.wait)
-  if (!text) throw `Example : ${prefix + command} story wa anime`
+  if (!text) return `Example : ${prefix + command} story wa anime`
   let yts = require("yt-search")
   let search = await yts(text)
   let teks = '*---- Data Ditemukan ----*\n\n Keywords : '+text+'\n\n'
@@ -916,7 +987,7 @@ case 'yts': case 'ytsearch': {
   }
   break
 case 'play':
-  if (!text) throw `Example : ${prefix + command} story wa anime`
+  if (!text) return `Example : ${prefix + command} story wa anime`
   let yts = require("yt-search")
   let search = await yts(text)
   let anu = search.videos[Math.floor(Math.random() * search.videos.length)]
@@ -963,8 +1034,8 @@ if (budy.startsWith('>')) {
   if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
   await m.reply(evaled)
   } catch (err) {
-  m = String(err)
-  await m.reply(m)
+//  m = String(err)
+  m.reply(require('util').format(err));
   }
   }
 if (budy.startsWith('$')) {
@@ -976,10 +1047,12 @@ if (budy.startsWith('$')) {
   }
 
   }
+    
   } catch (err) {
     console.log("error di bagian ichi.js "+util.format(err))
 //  m.reply(util.format(err))
   }
+
 }
 
 let file = require.resolve(__filename)
