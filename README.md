@@ -72,6 +72,7 @@ $ npm run dev
 ## ❗ Warning
 WhatsApp bot is still in the development stage, so there are a few bugs
 WhatsApp Connection (BETA, not working perfectly)
+## announcement 
 • to run bots on servers like railway.app if you want auto reload
 to run bots on servers like railway.app if you want auto reload
   when a crash / error occurs then use the Dockerfile 
