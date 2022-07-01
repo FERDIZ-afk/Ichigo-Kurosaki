@@ -61,7 +61,7 @@ yarn
 npm start
 ```
 
-## Installing
+## Run code
 ```bash
 $ node .
 #standr run
@@ -72,6 +72,9 @@ $ npm run dev
 ## ❗ Warning
 WhatsApp bot is still in the development stage, so there are a few bugs
 WhatsApp Connection (BETA, not working perfectly)
+• to run bots on servers like railway.app if you want auto reload
+to run bots on servers like railway.app if you want auto reload
+  when a crash / error occurs then use the Dockerfile 
 
 Editing Number Owner And More On [`settings.js`](https://github.com/NzrlAfndi/Ichigo-Kurosaki/blob/master/settings.js)
 
