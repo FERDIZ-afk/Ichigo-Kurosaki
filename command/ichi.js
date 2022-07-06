@@ -73,6 +73,7 @@ const from = m.key.remoteJid
 const { type, quotedMsg, mentioned, now, fromMe } = m
 const more = String.fromCharCode(8206)
 const readmore = more.repeat(4001)
+const mode = 'public'
 
 if (m && m.mtype == "protocolMessage") ichi.ev.emit("message.delete", m.message.protocolMessage.key);
 
@@ -156,7 +157,7 @@ setInterval(() => {
 fs.writeFileSync('./storage/db.json', JSON.stringify(global.db, null, 2))
 }, 60 * 1000)
 
-if (!ichi.public) {
+if (mode == 'self') {
 if (!m.key.fromMe && !isOwner) return
 }
 
