@@ -331,34 +331,77 @@ ${cpus.map((cpu, i) => `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Obje
 
 //Owner Menu
 case 'bcgc': case 'bcgroup': {
+  var fdoc = { key : { remoteJid: 'status@broadcast', participant : '0@s.whatsapp.net' }, message: { documentMessage: { title: 'B R O A D C A S T', jpegThumbnail: global.thumb, }}}
   if (!isOwner && !m.key.fromMe) return m.reply(mess.botOwner)
-  if (!text) return `Text mana?\n\nExample : ${prefix + command} ${global.ownerName}`
   let getGroups = await ichi.groupFetchAllParticipating()
   let groups = Object.entries(getGroups).slice(0).map(entry => entry[1])
   let anu = groups.map(v => v.id)
   m.reply(mess.wait + '\nMohon Untuk Menunggu Sejenak')
   for (let i of anu) {
+  //Bc Image
+  if (/image/.test(mime)) {
   await sleep(1500)
-  let txt = `*Broadcast ${ichi.user.name}*\n\n${text}\n`
-  ichi.sendButtonText(i, txt, m)
+  var txtbc = `*Broadcast ${ichi.user.name}*\n\n*✉️ Message :* ${q? q : ''}\n`
+  var btnbc = [{ buttonId: `y`, buttonText: { displayText: `${global.ownerName}` }, type: 1 }]
+  let media = await ichi.downloadAndSaveMediaMessage(quoted)
+  let url = await TelegraPh(media)
+  let urll = await getBuffer(url)
+  ichi.sendMessage(i, { image: urll, caption: txtbc, buttons: btnbc }, { quoted: fdoc })
+  if (fs.existsSync(media)) fs.unlinkSync(media)
+  //Bc Video
+  } else if (/video/.test(mime)) {
+  await sleep(1500)
+  var txtbc = `*Broadcast ${ichi.user.name}*\n\n*✉️ Message :* ${q? q : ''}\n`
+  var btnbc = [{ buttonId: `y`, buttonText: { displayText: `${global.ownerName}` }, type: 1 }]
+  let media = await ichi.downloadAndSaveMediaMessage(quoted)
+  let url = await TelegraPh(media)
+  let urll = await getBuffer(url)
+  ichi.sendMessage(i, { video: urll, caption: txtbc, buttons: btnbc }, { quoted: fdoc })
+  if (fs.existsSync(media)) fs.unlinkSync(media)
+  } else {
+  await sleep(1500)
+  var txtbc = `*Broadcast ${ichi.user.name}*\n\n*✉️ Message :* ${q? q : ''}\n`
+  var btnbc = [{ buttonId: `y`, buttonText: { displayText: `${global.ownerName}` }, type: 1 }]
+  await ichi.sendButtonText(i, btnbc, txtbc, '', fdoc)
   }
   m.reply('Sukses Broadcast')
+  }
   }
   break
 case 'bc': case 'broadcast': case 'bcall': {
+  var fdoc = { key : { remoteJid: 'status@broadcast', participant : '0@s.whatsapp.net' }, message: { documentMessage: { title: 'B R O A D C A S T', jpegThumbnail: global.thumb, }}}
   if (!isOwner && !m.key.fromMe) return m.reply(mess.botOwner)
-  if (!text) return `Text mana?\n\nExample : ${prefix + command} ${global.ownerName}`
   let anu = await store.chats.all().map(v => v.id)
-  let getGroups = await ichi.groupFetchAllParticipating()
-  let groups = Object.entries(getGroups).slice(0).map(entry => entry[1])
-  let anuan = groups.map(v => v.id)
   m.reply(mess.wait + '\nMohon Untuk Menunggu Sejenak')
-  for (let yoi of anu && anuan) {
+  for (let yoi of anu) {
+  //Bc Image
+  if (/image/.test(mime)) {
   await sleep(1500)
-  let txt = `*Broadcast ${ichi.user.name}*\n\n${text}`
-  ichi.sendText(yoi, txt, m)
+  var txtbc = `*Broadcast ${ichi.user.name}*\n\n*✉️ Message :* ${q? q : ''}\n`
+  var btnbc = [{ buttonId: `y`, buttonText: { displayText: `${global.ownerName}` }, type: 1 }]
+  let media = await ichi.downloadAndSaveMediaMessage(quoted)
+  let url = await TelegraPh(media)
+  let urll = await getBuffer(url)
+  ichi.sendMessage(yoi, { image: urll, caption: txtbc, buttons: btnbc }, { quoted: fdoc })
+  if (fs.existsSync(media)) fs.unlinkSync(media)
+  //Bc Video
+  } else if (/video/.test(mime)) {
+  await sleep(1500)
+  var txtbc = `*Broadcast ${ichi.user.name}*\n\n*✉️ Message :* ${q? q : ''}\n`
+  var btnbc = [{ buttonId: `y`, buttonText: { displayText: `${global.ownerName}` }, type: 1 }]
+  let media = await ichi.downloadAndSaveMediaMessage(quoted)
+  let url = await TelegraPh(media)
+  let urll = await getBuffer(url)
+  ichi.sendMessage(yoi, { video: urll, caption: txtbc, buttons: btnbc }, { quoted: fdoc })
+  if (fs.existsSync(media)) fs.unlinkSync(media)
+  } else {
+  await sleep(1500)
+  var txtbc = `*Broadcast ${ichi.user.name}*\n\n*✉️ Message :* ${q? q : ''}\n`
+  var btnbc = [{ buttonId: `y`, buttonText: { displayText: `${global.ownerName}` }, type: 1 }]
+  await ichi.sendButtonText(yoi, btnbc, txtbc, '', fdoc)
   }
   m.reply('Sukses Broadcast')
+  }
   }
   break
 case 'join': {
