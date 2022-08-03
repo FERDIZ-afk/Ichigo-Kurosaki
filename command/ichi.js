@@ -556,8 +556,8 @@ case 'kick': {
   if (!isAdmins) return m.reply(mess.admin)
   if (!m.quoted && !text) return m.reply('Yang mau di kick siapa??')
   if (args[0].startsWith('08')) return m.reply('Gunakan kode negara 62 Gan')
-  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-  await ichi.groupParticipantsUpdate(m.chat, [users], 'remove').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
+  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? [m.quoted.sender] : [text.replace(/[^0-9]/g, '')+'@s.whatsapp.net']
+  await ichi.groupParticipantsUpdate(m.chat, users, 'remove').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
   }
   break
 case 'add': {
@@ -566,8 +566,8 @@ case 'add': {
   if (!isAdmins) return m.reply(mess.admin)
   if (!m.quoted && !text) return m.reply('Yang mau di add siapa??')
   if (args[0].startsWith('08')) return m.reply('Gunakan kode negara 62 Gan')
-  let users = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-  await ichi.groupParticipantsUpdate(m.chat, [users], 'add').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
+  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? [m.quoted.sender] : [text.replace(/[^0-9]/g, '')+'@s.whatsapp.net']
+  await ichi.groupParticipantsUpdate(m.chat, users, 'add').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
   }
   break
 case 'promote': {
@@ -576,8 +576,8 @@ case 'promote': {
   if (!isAdmins) return m.reply(mess.admin)
   if (!m.quoted && !text) return m.reply('Yang mau di promote siapa??')
   if (args[0].startsWith('08')) return m.reply('Gunakan kode negara 62 Gan')
-  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-  await ichi.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
+  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? [m.quoted.sender] : [text.replace(/[^0-9]/g, '')+'@s.whatsapp.net']
+  await ichi.groupParticipantsUpdate(m.chat, users, 'promote').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
   }
   break
 case 'demote': {
@@ -586,8 +586,8 @@ case 'demote': {
   if (!isAdmins) return m.reply(mess.admin)
   if (!m.quoted && !text) return m.reply('Yang mau di demote siapa??')
   if (args[0].startsWith('08')) return m.reply('Gunakan kode negara 62 Gan')
-  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-  await ichi.groupParticipantsUpdate(m.chat, [users], 'demote').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
+  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? [m.quoted.sender] : [text.replace(/[^0-9]/g, '')+'@s.whatsapp.net']
+  await ichi.groupParticipantsUpdate(m.chat, users, 'demote').then((res) => m.reply(mess.done)).catch((err) => m.reply(jsonformat(err)))
   }
   break
 case 'setname': case 'setsubject': {
