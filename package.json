@@ -23,7 +23,7 @@
   "author": "Fandyyy",
   "license": "MIT",
   "dependencies": {
-    "@adiwajshing/baileys": "latest",
+    "@adiwajshing/baileys": "github:FatihArridho/baileys",
     "@adiwajshing/keyed-db": "latest",
     "@hapi/boom": "^10.0.0",
     "awesome-phonenumber": "^2.64.0",
