@@ -259,7 +259,7 @@ case 'menu': case 'help': case '?': {
   {"quickReplyButton": {"displayText": "Owner 👦","id": "owner"},},
   {"quickReplyButton": {"displayText": "Status Bot ⌚","id": `ping`}}
   ]
-  ichi.sendButtonImg(m.chat, menu, global.ownerName, global.thumb, but)
+  ichi.sendButtonImg(m.chat, menu, global.ownerName, global.thumb, but, global.thumb)
   }
   break
 case 'donasi': case 'sewa': case 'sewabot': {
@@ -270,7 +270,7 @@ Rental Bot Prices :
 💰 25k/month
 💰 100k/year`
   let but = [{"quickReplyButton": {"displayText": "Owner 👦","id": "owner"}}]
-  ichi.sendButtonImg(m.chat, donasi, global.ownerName, global.donasi, but)
+  ichi.sendButtonImg(m.chat, donasi, global.ownerName, global.donasi, but, global.donasi)
   }
   break
 case 'sc': case 'sourcecode': case 'script': {
