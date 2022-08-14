@@ -278,7 +278,20 @@ ichi.setStatus = (status) => {
 
 ichi.public = true
 ichi.serializeM = (m) => smsg(ichi, m, store)
-
+  
+  /** Resize Image
+   *
+   * @param {Buffer} Buffer (Only Image)
+   * @param {Numeric} Width
+   * @param {Numeric} Height
+   */
+   ichi.reSize = async (image, width, height) => {
+   let jimp = require('jimp')
+   var oyy = await jimp.read(image);
+   var kiyomasa = await oyy.resize(width, height).getBufferAsync(jimp.MIME_JPEG)
+   return kiyomasa
+   }
+   
   /**
    *
    * @param {*} jid
@@ -359,19 +372,22 @@ ichi.serializeM = (m) => smsg(ichi, m, store)
    * @param {*} options
    * @returns
    */
-   ichi.sendButtonImg = async (jid , text = '' , footer = '', img, but = [], options = {}) =>{
-   let message = await prepareWAMessageMedia({ image: img }, { upload: ichi.waUploadToServer })
-   var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
-   templateMessage: {
-   hydratedTemplate: {
-   imageMessage: message.imageMessage,
-   "hydratedContentText": text,
-   "hydratedFooterText": footer,
-   "hydratedButtons": but
+   ichi.sendButtonImg = async (jid , text = '' , footer = '', img, but = [], buff, options = {}) =>{
+   ichi.sendMessage(jid, { image: img, caption: text, footer: footer, templateButtons: but, ...options })
    }
-   }
-   }), options)
-   ichi.relayMessage(jid, template.message, { messageId: template.key.id })
+
+  /** Send Button 5 Location
+   *
+   * @param {*} jid
+   * @param {*} text
+   * @param {*} footer
+   * @param {*} location
+   * @param [*] button
+   * @param {*} options
+   */
+   ichi.sendButtonLoc = async (jid , text = '' , footer = '', lok, but = [], options = {}) =>{
+   let bb = await ichi.reSize(lok, 300, 150)
+   ichi.sendMessage(jid, { location: { jpegThumbnail: bb }, caption: text, footer: footer, templateButtons: but, ...options })
    }
 
   /** Send Button 5 Video
@@ -384,19 +400,9 @@ ichi.serializeM = (m) => smsg(ichi, m, store)
    * @param {*} options
    * @returns
    */
-   ichi.sendButtonVid = async (jid , text = '' , footer = '', vid, but = [], options = {}) =>{
-   let message = await prepareWAMessageMedia({ video: vid }, { upload: ichi.waUploadToServer })
-   var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
-   templateMessage: {
-   hydratedTemplate: {
-   videoMessage: message.videoMessage,
-   "hydratedContentText": text,
-   "hydratedFooterText": footer,
-   "hydratedButtons": but
-   }
-   }
-   }), options)
-   ichi.relayMessage(jid, template.message, { messageId: template.key.id })
+   ichi.sendButtonVid = async (jid , text = '' , footer = '', vid, but = [], buff, options = {}) =>{
+   let lol = await ichi.reSize(buf, 300, 150)
+   ichi.sendMessage(jid, { video: vid, jpegThumbnail: lol, caption: text, footer: footer, templateButtons: but, ...options })
    }
 
   /** Send Button 5 Gif
@@ -409,19 +415,11 @@ ichi.serializeM = (m) => smsg(ichi, m, store)
    * @param {*} options
    * @returns
    */
-   ichi.sendButtonGif = async (jid , text = '' , footer = '', gif, but = [], options = {}) =>{
-   let message = await prepareWAMessageMedia({ video: gif, gifPlayback: true }, { upload: ichi.waUploadToServer })
-   var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
-   templateMessage: {
-   hydratedTemplate: {
-   videoMessage: message.videoMessage,
-   "hydratedContentText": text,
-   "hydratedFooterText": footer,
-   "hydratedButtons": but
-   }
-   }
-   }), options)
-   ichi.relayMessage(jid, template.message, { messageId: template.key.id })
+   ichi.sendButtonGif = async (jid , text = '' , footer = '', gif, but = [], buff, options = {}) =>{
+   let ahh = await ichi.reSize(buf, 300, 150)
+   let a = [1,2]
+   let b = a[Math.floor(Math.random() * a.length)]
+   ichi.sendMessage(jid, { video: gif, gifPlayback: true, gifAttribution: b, caption: text, footer: footer, jpegThumbnail: ahh, templateButtons: but, ...options })
    }
 
   /**
