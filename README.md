@@ -3,6 +3,11 @@
 
 Base Bot WhatsApp Multi Device With [`Baileys Multi Device`](https://github.com/adiwajshing)
 
+## FYI
+> Mau Buat Fitur Tapi Ga Punya Databasenya?
+> Cek Nih [`Database`](https://github.com/NzrlAfndi/Databasee) Gw
+> Free Kok
+
 ## Note
 Base Ini Free Untuk Semua, Tidak Untuk Diperjualbelikan Kecuali Lu Udah Tambahin Fitur Langka Di Script Ini Baru Boleh Jual
 
@@ -51,14 +56,8 @@ npm start
 
 ```bash
 apt update && apt upgrade
-apt install git -y
-apt install nodejs -y
-apt install ffmpeg -y
-pkg install yarn
-git clone https://github.com/NzrlAfndi/Ichigo-Kurosaki
-cd Ichigo-Kurosaki
-yarn
-npm start
+apt install bash
+bash install.sh
 ```
 
 ## Run code
