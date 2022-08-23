@@ -27,6 +27,63 @@ const store = makeInMemoryStore({ logger: pino().child({ level: 'fatal', stream:
 global.api = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({ ...query, ...(apikeyqueryname ? { [apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name] } : {}) })) : '')
 
 //Starting In Console
+
+const _ = require('lodash')
+const yargs = require('yargs')
+
+var low
+try {
+	low = require('lowdb')
+} catch (e) {
+	low = require('../lib/lowdb')
+}
+
+
+const {
+	Low,
+	JSONFile
+} = low
+const mongoDB = require('../lib/mongoDB')
+const cloudDBAdapter = require('../lib/cloudDBAdapter')
+
+
+
+
+global.db = new Low(
+	new JSONFile(`./storage/db.json`)
+)
+global.DATABASE = global.db // Backwards Compatibility
+global.loadDatabase = async function loadDatabase() {
+  if (global.db.READ) return new Promise((resolve) => setInterval(function () { (!global.db.READ ? (clearInterval(this), resolve(global.db.data == null ? global.loadDatabase() : global.db.data)) : null) }, 1 * 1000))
+  if (global.db.data !== null) return
+  global.db.READ = true
+  await global.db.read()
+  global.db.READ = false
+  global.db.data = {
+    users: {},
+    group: {},
+    chats: {},
+    database: {},
+    game: {},
+    settings: {},
+    donate: {} ,
+    others: {},
+    sticker: {},
+    ...(global.db.data || {})
+  }
+  global.db.chain = _.chain(global.db.data)
+}
+loadDatabase()
+
+if (global.db) setInterval(async () => {
+	if (global.db.data) await global.db.write()
+}, 30 * 1000)
+
+
+
+
+
+
 async function startIchigo(){
   
 cfonts.say('ICHIGO',{

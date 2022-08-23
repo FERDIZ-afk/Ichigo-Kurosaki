@@ -2,7 +2,6 @@ console.log('Starting...')
 let { spawn } = require('child_process')
 let path = require('path')
 
-
 function start() {
 	let args = [path.join(__dirname, 'connect/index.js'), ...process.argv.slice(2)]
 	console.log([process.argv[0], ...args].join('\n'))

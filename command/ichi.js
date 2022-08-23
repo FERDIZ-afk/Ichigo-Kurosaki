@@ -42,13 +42,6 @@ const dbog = require('../lib/Database.js')
 const dbmesseg = new dbog()
 
 
-//database
-global.db = {} || JSON.parse(fs.readFileSync('./storage/db.json'))
-if (global.db) global.db = {
-chats: {},
-...(global.db || {})
-}
-
 //Module Exports
 module.exports = ichi = async(ichi, m, chatUpdate, store) => {
 try {
@@ -84,7 +77,7 @@ const participants = m.isGroup ? await groupMetadata.participants : ''
 const groupAdmins = m.isGroup ? await participants.filter(v => v.admin !== null).map(v => v.id) : ''
 const groupOwner = m.isGroup ? groupMetadata.owner : ''
 const isBotAdmins = m.isGroup ? groupAdmins.includes(botNumber) : false
-const isAdmins = m.isGroup ? groupOwner.includes(m.sender) || groupAdmins.includes(m.sender) : false
+const isAdmins = m.isGroup ? groupAdmins.includes(m.sender) : false
 const mentionUser = [...new Set([...(m.mentionedJid || []), ...(m.quoted ? [m.quoted.sender] : [])])]
 const isNumber = x => typeof x === 'number' && !isNaN(x)
 
@@ -93,33 +86,34 @@ const reply = (texto) => {
 			ichi.sendMessage(m.chat, { text: texto, mentions: [m.sender] }, {	quoted: m })
 		}
 
-try {
-  if (!m.isGroup) return 
-let chats = global.db.chats[m.chat]
-if (typeof chats !== 'object') global.db.chats[m.chat] = {}
-if (chats) {
-if (!('antilink' in chats)) chats.antilink = false
-if (!('antidelete' in chats)) chats.antidelete = false
-if (!('antiviewone' in chats)) chats.antiviewone = false
-} else global.db.chats[m.chat] = {
-antilink: false,
-antidelete: false,
-antiviewone: false
 
-}
-} catch (err) {
-console.error(err)
+if (m.isGroup) {
+    try {
+		let gchats = global.db.data.group[m.chat]
+    if (typeof gchats !== 'object') global.db.data.group[m.chat] = {}
+    if (gchats) {
+    if (!('antilink' in gchats)) gchats.antilink = false
+    if (!('antidelete' in gchats)) gchats.antidelete = false
+    if (!('antiviewone' in gchats)) gchats.antiviewone = false
+    } else global.db.data.group[m.chat] = {
+    antilink: false,
+    antidelete: false,
+    antiviewone: false
+    
+    }
+    } catch (err) {
+    console.error(err)
+    }
 }
 
 //anti delete
-if (db.chats[m.chat].antidelete) {
+if ( m.isGroup && db.data.group[m.chat].antidelete) {
     ichi.addMessage(m, m.mtype);
 }
 
 
 // Antilink
-if (db.chats[m.chat].antilink) {
-if (!m.isGroup) return 
+if (m.isGroup && db.data.group[m.chat].antilink) {
 if (budy.match(`chat.whatsapp.com`)) {
 m.reply(`Link Grup Lain Terdeteksi 🤬\nMaaf Kamu Akan Di Kick !`)
 if (!isBotAdmins) return //  buat ngediem in daripada nyepam m.reply(mess.botAdmin)
@@ -133,8 +127,7 @@ ichi.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
 }
 }
 
-if (db.chats[m.chat].antiviewone) {
-if (!m.isGroup) return 
+if (m.isGroup && db.data.group[m.chat].antiviewone) {
 		if (m.isGroup && m.mtype == 'viewOnceMessage') {
 			let teks = `「 *Anti ViewOnce Message* 」
     
@@ -152,10 +145,8 @@ if (!m.isGroup) return
 			}).catch(_ => m.reply('Mungkin dah pernah dibuka bot'))
 		}
 }
-//Update Database
-setInterval(() => {
-fs.writeFileSync('./storage/db.json', JSON.stringify(global.db, null, 2))
-}, 60 * 1000)
+
+
 
 if (mode == 'self') {
 if (!m.key.fromMe && !isOwner) return
@@ -477,12 +468,12 @@ case 'antilink':
   if (!isBotAdmins) return m.reply(mess.botAdmin)
   if (!isAdmins) return m.reply(mess.admin)
   if (args[0] === "on") {
-  if (db.chats[m.chat].antilink) return m.reply(`Sudah Aktif Sebelumnya`)
-  db.chats[m.chat].antilink = true
+  if (db.data.group[m.chat].antilink) return m.reply(`Sudah Aktif Sebelumnya`)
+  db.data.group[m.chat].antilink = true
   m.reply(`Antilink Berhasil Di Aktifkan !`)
   } else if (args[0] === "off") {
-  if (!db.chats[m.chat].antilink) return m.reply(`Sudah Nonaktif Sebelumnya`)
-  db.chats[m.chat].antilink = false
+  if (!db.data.group[m.chat].antilink) return m.reply(`Sudah Nonaktif Sebelumnya`)
+  db.data.group[m.chat].antilink = false
   m.reply(`Antilink Berhasil Di Nonaktifkan !`)
   } else {
   let buttonsantilink = [
@@ -498,12 +489,12 @@ case 'antidelete':
   if (!isBotAdmins) return m.reply(mess.botAdmin)
   if (!isAdmins) return m.reply(mess.admin)
   if (args[0] === "on") {
-  if (db.chats[m.chat].antidelete) return m.reply(`Sudah Aktif Sebelumnya`)
-  db.chats[m.chat].antidelete = true
+  if (db.data.group[m.chat].antidelete) return m.reply(`Sudah Aktif Sebelumnya`)
+  db.data.group[m.chat].antidelete = true
   m.reply(`Antilink Berhasil Di Aktifkan !`)
   } else if (args[0] === "off") {
-  if (!db.chats[m.chat].antidelete) return m.reply(`Sudah Nonaktif Sebelumnya`)
-  db.chats[m.chat].antidelete = false
+  if (!db.data.group[m.chat].antidelete) return m.reply(`Sudah Nonaktif Sebelumnya`)
+  db.data.group[m.chat].antidelete = false
   m.reply(`Antilink Berhasil Di Nonaktifkan !`)
   } else {
   let buttonsantilink = [
@@ -519,12 +510,12 @@ case 'antiviewone':
   if (!isBotAdmins) return m.reply(mess.botAdmin)
   if (!isAdmins) return m.reply(mess.admin)
   if (args[0] === "on") {
-  if (db.chats[m.chat].antiviewone) return m.reply(`Sudah Aktif Sebelumnya`)
-  db.chats[m.chat].antiviewone = true
+  if (db.data.group[m.chat].antiviewone) return m.reply(`Sudah Aktif Sebelumnya`)
+  db.data.group[m.chat].antiviewone = true
   m.reply(`Antilink Berhasil Di Aktifkan !`)
   } else if (args[0] === "off") {
-  if (!db.chats[m.chat].antiviewone) return m.reply(`Sudah Nonaktif Sebelumnya`)
-  db.chats[m.chat].antiviewone = false
+  if (!db.data.group[m.chat].antiviewone) return m.reply(`Sudah Nonaktif Sebelumnya`)
+  db.data.group[m.chat].antiviewone = false
   m.reply(`Antilink Berhasil Di Nonaktifkan !`)
   } else {
   let buttonsantilink = [

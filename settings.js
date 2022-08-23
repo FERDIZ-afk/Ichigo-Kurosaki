@@ -27,6 +27,7 @@ wait: 'Loading...',
 done: 'Done!'
 }
 
+
 //Sesuaikan
 global.thumb = fs.readFileSync('./media/ichi.jpeg')
 global.donasi = fs.readFileSync('./media/donasi.jpg')
