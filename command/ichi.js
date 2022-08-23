@@ -107,7 +107,7 @@ if (m.isGroup) {
 }
 
 //anti delete
-if ( m.isGroup && db.data.group[m.chat].antidelete) {
+if (m.isGroup && db.data.group[m.chat].antidelete) {
     ichi.addMessage(m, m.mtype);
 }
 
