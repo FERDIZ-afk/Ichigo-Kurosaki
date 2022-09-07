@@ -115,7 +115,7 @@ try {
 mek = chatUpdate.messages[0]
 if (!mek.message) return
 mek.message = (Object.keys(mek.message)[0] === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message
-if (mek.key && mek.key.remoteJid === 'status@broadcast') return
+if (mek.key && mek.key.remoteJid === 'status@broadcast') return ichi.readMessages([mek.key]) // READ STATUS ORANG 
 if (!ichi.public && !mek.key.fromMe && chatUpdate.type === 'notify') return
 if (mek.key.id.startsWith('BAE5') && mek.key.id.length === 16) return
 m = smsg(ichi, mek, store)
@@ -130,30 +130,41 @@ console.log(err)
 ichi.ev.on('group-participants.update', async (anu) => {
 console.log(anu)
 try {
-let metadata = await ichi.groupMetadata(anu.id)
-let participants = anu.participants
-for (let num of participants) {
-try {
-ppuser = await ichi.profilePictureUrl(num, 'image') 
-} catch {
-ppuser = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
+  
+if(!anu.participants.includes(Ichi.user.jid) ) {
+      let participants = anu.participants
+      for (let num of participants) {
+      try {
+      ppuser = await ichi.profilePictureUrl(num, 'image') 
+      } catch {
+      ppuser = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
+      }
+      if (anu.action == 'add') {
+      let metadata = await ichi.groupMetadata(anu.id)
+      tekswell = `Welcome @${num.split('@')[0]} To ${metadata.subject} 👋`
+      ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: tekswell })
+      } else if (anu.action == 'remove') {
+      let metadata = await ichi.groupMetadata(anu.id)
+      teksbye = `Sayonaraa @${num.split("@")[0]} 👋`
+      ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: teksbye })
+      } else if (anu.action == 'promote') {
+      let metadata = await ichi.groupMetadata(anu.id)
+      tekspromo = `Selamat Ya @${num.split("@")[0]} Atas Kenaikan Jabatannya Di Grup ${metadata.subject} 🎉`
+      ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: tekspromo })
+      } else if (anu.action == 'demote') {
+      let metadata = await ichi.groupMetadata(anu.id)
+      teksdemo = `Nice Try @${num.split("@")[0]} Atas Penurunan Jabatannya Di Grup ${metadata.subject} 😔`
+      ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: teksdemo })
+      }
+      }
+} else {
+  
+  // KOSONG HEHE MOGA² NGAK ADA ERROR 
+  
 }
-if (anu.action == 'add') {
-tekswell = `Welcome @${num.split('@')[0]} To ${metadata.subject} 👋`
-ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: tekswell })
-} else if (anu.action == 'remove') {
-teksbye = `Sayonaraa @${num.split("@")[0]} 👋`
-ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: teksbye })
-} else if (anu.action == 'promote') {
-tekspromo = `Selamat Ya @${num.split("@")[0]} Atas Kenaikan Jabatannya Di Grup ${metadata.subject} 🎉`
-ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: tekspromo })
-} else if (anu.action == 'demote') {
-teksdemo = `Nice Try @${num.split("@")[0]} Atas Penurunan Jabatannya Di Grup ${metadata.subject} 😔`
-ichi.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: teksdemo })
-}
-}
+
 } catch (err) {
-console.log(err)
+console.log("BOT Grup Info"+err)
 }
 })
 
