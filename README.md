@@ -68,6 +68,10 @@ $ npm run dev
 #run use nodemon
 ```
 
+## Setup Dockerfile running pm2
+ Add token pm2
+ 
+
 ## ❗ Warning
 WhatsApp bot is still in the development stage, so there are a few bugs
 WhatsApp Connection (BETA, not working perfectly)
