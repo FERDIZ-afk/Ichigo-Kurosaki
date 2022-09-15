@@ -131,7 +131,7 @@ ichi.ev.on('group-participants.update', async (anu) => {
 console.log(anu)
 try {
   
-if(!anu.participants.includes(Ichi.user.jid) ) {
+if(!anu.participants.includes(ichi.user.jid) ) {
       let participants = anu.participants
       for (let num of participants) {
       try {
