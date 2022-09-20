@@ -69,11 +69,7 @@ $ npm run dev
 ```
 
 ## Setup Dockerfile running pm2
- Add token key pm2
-
-<img src="https://github.com/NzrlAfndi/Ichigo-Kurosaki/blob/master/sampah/IMG_20220911_202949.jpg" width="440" height="540"/>
- 
-
+ Add token key pm2, Check [`Disini`](https://app.pm2.io) Login With Github
 ## ❗ Warning
 WhatsApp bot is still in the development stage, so there are a few bugs
 WhatsApp Connection (BETA, not working perfectly)
