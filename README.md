@@ -14,18 +14,17 @@ Base Ini Free Untuk Semua, Tidak Untuk Diperjualbelikan Kecuali Lu Udah Tambahin
 ## Thanks To
 * [`Adiwajshing`](https://github.com/adiwajshing)
 * [`Nurutomo`](https://github.com/Nurutomo)
-* [`Fandyyy`](https://github.com/FBOTZ-YT)
+* [`Fandyyy`](https://github.com/NZRLAFNDI)
 * [`FERDIZ-afk`](https://github.com/FERDIZ-afk)
 
 ## Connect With Me
 * [`Group WhatsApp`](https://chat.whatsapp.com/CSqakw6x2wRIOWTPL5a6a9)
-* [`Whatsapp`](https://wa.me/6285609233482?text=Assalamualaikum)
+* [`Whatsapp`](https://wa.me/6281540022632?text=Assalamualaikum)
 * [`Instagram`](https://instagram.com/_nzrlafndi)
 * [`More...`](https://linktr.ee/NzrlAfndi)
 
 ## Donate Me
 * [`Saweria`](https://saweria.co/Fandyy)
-* [`Gopay`](https://telegra.ph/file/4abd43eeab0c17edebff2.jpg)
 
 ## License
 License: [MIT](https://en.wikipedia.org/wiki/MIT_License)
