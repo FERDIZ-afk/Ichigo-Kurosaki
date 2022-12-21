@@ -1,17 +1,6 @@
 {
   "users": {},
-  "group": {
-    "120363026585011705@g.us": {
-      "antilink": false,
-      "antidelete": true,
-      "antiviewone": false
-    },
-    "6283861007177-1633775518@g.us": {
-      "antilink": false,
-      "antidelete": false,
-      "antiviewone": false
-    }
-  },
+  "group": {},
   "chats": {},
   "database": {},
   "game": {},

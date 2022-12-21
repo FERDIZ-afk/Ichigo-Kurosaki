@@ -22,7 +22,6 @@ const dbog = require('../lib/Database.js')
 const db = new dbog()
 
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetchJson, await, sleep } = require('../lib/myfunc')
-const { state, saveState } = useSingleFileAuthState(`./${global.sessionName}.json`)
 const store = makeInMemoryStore({ logger: pino().child({ level: 'fatal', stream: 'store' }) })
 global.api = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({ ...query, ...(apikeyqueryname ? { [apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name] } : {}) })) : '')
 
@@ -98,9 +97,32 @@ align: 'center'
 })
 
 try{
+  const { state, saveCreds } = await useMultiFileAuthState(global.sessionName)
 const ichi = makeWASocket({
 logger: pino({ level: 'silent' }),
 printQRInTerminal: true,
+//work tempelate message 
+patchMessageBeforeSending: (message) => {
+const requiresPatch = !!(
+  message.buttonsMessage
+  || message.templateMessage
+  || message.listMessage
+  );
+    if (requiresPatch) {
+      message = {
+        viewOnceMessage: {
+          message: {
+            messageContextInfo: {
+              deviceListMetadataVersion: 2,
+              deviceListMetadata: {},
+            },
+          ...message,
+          },
+        },
+      };
+    }
+  return message;
+},
 browser: ["Ichigo Kurosaki", "Safari", "3.0"],
 auth: state
 })
@@ -170,8 +192,9 @@ console.log("BOT Grup Info"+err)
 
 
 		// detect group update
-		ichi.ev.on("groups.update", async (json) => {
-			console.log(json)
+ichi.ev.on("groups.update", async (json) => {
+console.log(json)
+  try {
 			const res = json[0];
 			if (res.announce == true) {
 				await delay(2000)
@@ -196,30 +219,41 @@ console.log("BOT Grup Info"+err)
 			} else if(!res.desc == ''){
 				await delay(2000)
 				ichi.sendMessage(res.id, {
-					text: `「 Group Settings Change 」\n\n*Group desk telah diganti menjadi*\n\n${res.desc}`,
+					text: `「 Group Settings Change 」\n*Group desk telah diganti menjadi*\n\n*NEW Description :*\n\n${res.desc == 'undefined' ? '' : res.desc}`,
+				});
+      } else if(!res.inviteCode == ''){
+				await delay(2000)
+				ichi.sendMessage(res.id, {
+					text: `「 Group Settings Change 」\n*Group invite link telah diganti menjadi*\n\n*NEW invite link Code :*\n\n${res.inviteCode == 'undefined' ? '' : "https://chat.whatsapp.com/"+res.inviteCode}`,
 				});
       } else {
 				await delay(2000)
 				ichi.sendMessage(res.id, {
-					text: `「 Group Settings Change 」\n\n*Group Subject telah diganti menjadi*\n\n*${res.subject}*`,
+					text: `「 Group Settings Change 」\n*Group Subject telah diganti menjadi*\n\n*NEW NAME GROUP :*\n\n*${res.subject}*`,
 				});
 			} 
+    } catch (err) {
+			console.error(err)
+		} 
 			
 		});
 
-
+//anti delete
 
 ichi.ev.on("message.delete", async (m) => {
 //	 console.log(m)
 		if (!m) m = false;
+		const isGroup = m.remoteJid.endsWith('@g.us')
+	if (!isGroup) return
 	try {
-		const dataChat = JSON.parse(fs.readFileSync("./database/mess.json"));
+		const dataChat = global.dbchatpesan
 		let mess = dataChat.find((a) => a.id == m.id);
 	//	console.log(mess)
 		
 		let mek = mess.msg;
 		let participant = mek.key.remoteJid.endsWith("@g.us") ? mek.key.participant : mek.key.remoteJid;
 		let froms = mek.key.remoteJid;
+		if (db.data.group[froms].antidelete) {
 		let teks = `「 *Anti delete Message* 」
     
     🤠 *Name* : ${mek.pushName}
@@ -235,6 +269,7 @@ ichi.ev.on("message.delete", async (m) => {
 			{ quoted: mek }
 		);
 		await ichi.copyNForward(froms, mek, true) 
+	}
 	} catch (err) {
 		//console.log(JSON.stringify(err, undefined, 2))
 		}
@@ -288,8 +323,10 @@ try{
 	  console.log('error di connection.update'+err)
 	  startIchigo();
 	}
-	
 })
+
+ichi.ev.on('creds.update', saveCreds) // save sesion multi 
+
 
 //add detek pesan react emoji by FERDIZ AFK
 ichi.ev.on("messages.reaction", async (pesan) => {
@@ -319,8 +356,6 @@ ichi.ev.on("messages.reaction", async (pesan) => {
 // set ppfull new function 
 function _0x550d(_0x247ac8,_0x1c69eb){const _0x1e0300=_0x1e03();return _0x550d=function(_0x550dfb,_0x355ac8){_0x550dfb=_0x550dfb-0x95;let _0xb235f0=_0x1e0300[_0x550dfb];return _0xb235f0;},_0x550d(_0x247ac8,_0x1c69eb);}function _0x1e03(){const _0x23028c=['371067YGeMWO','14104320ZrzKFR','3453737KsSkrj','25iUtaIi','updateProfilePicture','w:profile:picture','623468QbycXa','9999000kuZNhY','390500UGZdbu','query','image','set','picture','../lib/myfunc','72BqrZZU','14IWPqjs','767642ARazpv'];_0x1e03=function(){return _0x23028c;};return _0x1e03();}const _0x5d8e3b=_0x550d;(function(_0xa1ba61,_0x412569){const _0x2ec30a=_0x550d,_0x191412=_0xa1ba61();while(!![]){try{const _0x2a02da=parseInt(_0x2ec30a(0x98))/0x1+parseInt(_0x2ec30a(0x97))/0x2*(parseInt(_0x2ec30a(0x99))/0x3)+parseInt(_0x2ec30a(0x9f))/0x4*(-parseInt(_0x2ec30a(0x9c))/0x5)+parseInt(_0x2ec30a(0xa0))/0x6+parseInt(_0x2ec30a(0x9b))/0x7+-parseInt(_0x2ec30a(0x9a))/0x8+-parseInt(_0x2ec30a(0x96))/0x9*(parseInt(_0x2ec30a(0xa1))/0xa);if(_0x2a02da===_0x412569)break;else _0x191412['push'](_0x191412['shift']());}catch(_0x29bb5b){_0x191412['push'](_0x191412['shift']());}}}(_0x1e03,0xe5255),ichi[_0x5d8e3b(0x9d)]=async(_0x24c20d,_0x59ff62)=>{const _0x2aa33f=_0x5d8e3b,{generateProfilePicture:_0x21be0e}=require(_0x2aa33f(0x95)),{img:_0x313226}=await _0x21be0e(_0x59ff62);console['log'](_0x313226),await ichi[_0x2aa33f(0xa2)]({'tag':'iq','attrs':{'to':jidNormalizedUser(_0x24c20d),'type':_0x2aa33f(0xa4),'xmlns':_0x2aa33f(0x9e)},'content':[{'tag':_0x2aa33f(0xa5),'attrs':{'type':_0x2aa33f(0xa3)},'content':_0x313226}]});});
 
-//dbmesseg chat
-const _0x4fb0a2=_0x4f6b;(function(_0x358879,_0x1d62b2){const _0x4dfde3=_0x4f6b,_0x28beb0=_0x358879();while(!![]){try{const _0x20ce48=-parseInt(_0x4dfde3(0x1d8))/0x1+parseInt(_0x4dfde3(0x1d0))/0x2*(parseInt(_0x4dfde3(0x1d9))/0x3)+parseInt(_0x4dfde3(0x1cf))/0x4*(-parseInt(_0x4dfde3(0x1db))/0x5)+parseInt(_0x4dfde3(0x1ce))/0x6*(parseInt(_0x4dfde3(0x1d5))/0x7)+parseInt(_0x4dfde3(0x1d1))/0x8+parseInt(_0x4dfde3(0x1d4))/0x9+-parseInt(_0x4dfde3(0x1d7))/0xa*(parseInt(_0x4dfde3(0x1d2))/0xb);if(_0x20ce48===_0x1d62b2)break;else _0x28beb0['push'](_0x28beb0['shift']());}catch(_0xf43ea0){_0x28beb0['push'](_0x28beb0['shift']());}}}(_0x2831,0x8135f),ichi[_0x4fb0a2(0x1d6)]=(_0x4c4de0,_0x295962)=>{const _0x41d64d=_0x4fb0a2;if(_0x295962==_0x41d64d(0x1cd))return;let _0x5029aa=_0x4c4de0[_0x41d64d(0x1cc)]['remoteJid'];return db[_0x41d64d(0x1d3)](_0x41d64d(0x1da),{'id':_0x4c4de0['key']['id'],'msg':_0x4c4de0});});function _0x4f6b(_0x3abdfb,_0x5db7bf){const _0x283170=_0x2831();return _0x4f6b=function(_0x4f6bb3,_0x4804c3){_0x4f6bb3=_0x4f6bb3-0x1cc;let _0xd9b347=_0x283170[_0x4f6bb3];return _0xd9b347;},_0x4f6b(_0x3abdfb,_0x5db7bf);}function _0x2831(){const _0xc98979=['8234816fnpiVr','11KFDGFz','modified','9467415jMpuCv','448uduKok','addMessage','17409570fzYVbn','682964iKyujj','18924vetQMZ','mess','2547715akptPc','key','protocolMessage','37254dMpHpW','4mTnHQa','312DXEzeL'];_0x2831=function(){return _0xc98979;};return _0x2831();}
 	
 ichi.decodeJid = (jid) => {
   if (!jid) return jid

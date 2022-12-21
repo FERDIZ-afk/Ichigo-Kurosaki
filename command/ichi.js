@@ -40,13 +40,19 @@ const { bytesToSize, TelegraPh, UploadFileUgu, webp2mp4File} = require('../lib/u
 const { smsg, getGroupAdmins, formatp, tanggal, formatDate, getTime, isUrl, await, sleep, clockString, msToDate, sort, toNumber, enumGetKey, runtime, fetchJson, getBuffer, jsonformat, delay, format, logic, generateProfilePicture, parseMention, getRandom, pickRandom} = require('../lib/myfunc')
 const dbog = require('../lib/Database.js')
 const dbmesseg = new dbog()
-
+var dbs = []
+global.dbchatpesan = dbs
 
 //Module Exports
 module.exports = ichi = async(ichi, m, chatUpdate, store) => {
 try {
   //console.log(m)
 
+msg = m
+		dbs.push({
+			id: msg.key.id,
+			msg
+		});
 
 var body = (m.mtype === 'conversation') ? m.message.conversation : (m.mtype == 'imageMessage') ? m.message.imageMessage.caption : (m.mtype == 'videoMessage') ? m.message.videoMessage.caption : (m.mtype == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.mtype == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.mtype == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectReply.selectedRowId : (m.mtype == 'templateButtonReplyMessage') ? m.message.templateButtonReplyMessage.selectedId : (m.mtype === 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || m.text) : ''
 var budy = (typeof m.text == 'string' ? m.text : '')
@@ -100,10 +106,6 @@ if (m.isGroup) {
     }
 }
 
-//anti delete
-if (m.isGroup && db.data.group[m.chat].antidelete) {
-    ichi.addMessage(m, m.mtype);
-}
 
 
 // Antilink
@@ -122,13 +124,12 @@ ichi.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
 }
 
 if (m.isGroup && db.data.group[m.chat].antiviewone) {
-    if (m.isGroup && m.mtype == 'viewOnceMessage') {
+    if (m.isGroup && m.mtype == 'viewOnceMessage' && m.msg.viewOnce) {
     let teks = `「 *Anti ViewOnce Message* 」
     
     🤠 *Name* : ${pushname}
     👾 *User* : @${m.sender.split("@")[0]}
     ⏰ *Clock* : ${moment.tz('Asia/Jakarta').format('HH:mm:ss')} WIB
-    
     💫 *MessageType* : ${m.mtype}`
     reply(teks)
     await sleep(500)
