@@ -75,21 +75,16 @@ const groupMetadata = m.isGroup ? await ichi.groupMetadata(m.chat).catch(e => {}
 const groupName = m.isGroup ? groupMetadata.subject : ''
 const participants = m.isGroup ? await groupMetadata.participants : ''
 const groupAdmins = m.isGroup ? await participants.filter(v => v.admin !== null).map(v => v.id) : ''
-const groupOwner = m.isGroup ? groupMetadata.owner : ''
 const isBotAdmins = m.isGroup ? groupAdmins.includes(botNumber) : false
 const isAdmins = m.isGroup ? groupAdmins.includes(m.sender) : false
 const mentionUser = [...new Set([...(m.mentionedJid || []), ...(m.quoted ? [m.quoted.sender] : [])])]
 const isNumber = x => typeof x === 'number' && !isNaN(x)
 
-
-const reply = (texto) => {
-			ichi.sendMessage(m.chat, { text: texto, mentions: [m.sender] }, {	quoted: m })
-		}
-
+const reply = (texto) => { ichi.sendMessage(m.chat, { text: texto, mentions: [m.sender] }, { quoted: m })}
 
 if (m.isGroup) {
     try {
-		let gchats = global.db.data.group[m.chat]
+    let gchats = global.db.data.group[m.chat]
     if (typeof gchats !== 'object') global.db.data.group[m.chat] = {}
     if (gchats) {
     if (!('antilink' in gchats)) gchats.antilink = false
@@ -98,8 +93,7 @@ if (m.isGroup) {
     } else global.db.data.group[m.chat] = {
     antilink: false,
     antidelete: false,
-    antiviewone: false
-    
+    antiviewone: false   
     }
     } catch (err) {
     console.error(err)
@@ -128,25 +122,23 @@ ichi.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
 }
 
 if (m.isGroup && db.data.group[m.chat].antiviewone) {
-		if (m.isGroup && m.mtype == 'viewOnceMessage') {
-			let teks = `「 *Anti ViewOnce Message* 」
+    if (m.isGroup && m.mtype == 'viewOnceMessage') {
+    let teks = `「 *Anti ViewOnce Message* 」
     
     🤠 *Name* : ${pushname}
     👾 *User* : @${m.sender.split("@")[0]}
     ⏰ *Clock* : ${moment.tz('Asia/Jakarta').format('HH:mm:ss')} WIB
     
     💫 *MessageType* : ${m.mtype}`
-     reply(teks)
-			await sleep(500)
-			m.copyNForward(m.chat, true, {
-				readViewOnce: true
-			}, {
-				quoted: mek
-			}).catch(_ => m.reply('Mungkin dah pernah dibuka bot'))
-		}
+    reply(teks)
+    await sleep(500)
+    m.copyNForward(m.chat, true, {
+       readViewOnce: true
+       }, {
+       quoted: mek
+       }).catch(_ => m.reply('Mungkin dah pernah dibuka bot'))
+    }
 }
-
-
 
 if (mode == 'self') {
 if (!m.key.fromMe && !isOwner) return
@@ -164,7 +156,6 @@ case 'resetdbpesan': case 'resetdb': case 'resetdatabase': {
   m.reply("success")
 }
 break;
-
 
 case 'menu': case 'help': case '?': {
   let menu = `
