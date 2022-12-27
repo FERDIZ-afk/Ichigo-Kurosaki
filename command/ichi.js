@@ -961,7 +961,7 @@ case 'tourl': {
   break
 case 'swm': case 'wm': case 'take': case 'colong': {
   if (!isPrem && global.db.data.users[m.sender].limit < 1) return m.reply(global.limitEnd)
-  if (!quoted) return m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
+  if (!quoted) return m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
   if (!text) return m.reply(`Kirim perintah ${prefix + command} packname|author`)
   if (!text.includes('|')) return m.reply(`Kirim perintah ${prefix + command} packname|author`)
   m.reply (mess.wait)
@@ -970,12 +970,12 @@ case 'swm': case 'wm': case 'take': case 'colong': {
   let encmedia = await ichi.sendImageAsSticker(m.chat, media, m, { packname: text.split("|")[0], author: text.split("|")[1] })
   await fs.unlinkSync(encmedia)
   } else if (/video/.test(mime)) {
-  if (qmsg.seconds > 11) return m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
+  if (qmsg.seconds > 11) return m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
   let media = await ichi.downloadMediaMessage(qmsg)
   let encmedia = await ichi.sendVideoAsSticker(m.chat, media, m, { packname: text.split("|")[0], author: text.split("|")[1] })
   await fs.unlinkSync(encmedia)
   } else {
-  m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
+  m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
   }
   }
   break

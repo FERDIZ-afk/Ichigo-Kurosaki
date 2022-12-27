@@ -243,8 +243,6 @@ console.log(json)
 ichi.ev.on("message.delete", async (m) => {
 //	 console.log(m)
 		if (!m) m = false;
-		const isGroup = m.remoteJid.endsWith('@g.us')
-	if (!isGroup) return
 	try {
 		const dataChat = global.dbchatpesan
 		let mess = dataChat.find((a) => a.id == m.id);
@@ -278,8 +276,6 @@ ichi.ev.on("message.delete", async (m) => {
 	});
 
 //Connection Active
-
-
 ichi.ev.on('connection.update', async (update) => {
 	const {
 		connection,
@@ -331,7 +327,6 @@ ichi.ev.on('creds.update', saveCreds) // save sesion multi
 //add detek pesan react emoji by FERDIZ AFK
 ichi.ev.on("messages.reaction", async (pesan) => {
 	try {
-	  		console.log(pesan[0])
 	  var m = pesan[0]
 		conn = ichi
 		if (m.reaction.key.id.startsWith("BAE5") && m.reaction.key.id.length === 16 ) return;
