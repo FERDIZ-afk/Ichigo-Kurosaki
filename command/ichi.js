@@ -49,10 +49,10 @@ try {
   //console.log(m)
 
 msg = m
-		dbs.push({
-			id: msg.key.id,
-			msg
-		});
+  dbs.push({
+  id: msg.key.id,
+  msg
+});
 
 var body = (m.mtype === 'conversation') ? m.message.conversation : (m.mtype == 'imageMessage') ? m.message.imageMessage.caption : (m.mtype == 'videoMessage') ? m.message.videoMessage.caption : (m.mtype == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.mtype == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.mtype == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectReply.selectedRowId : (m.mtype == 'templateButtonReplyMessage') ? m.message.templateButtonReplyMessage.selectedId : (m.mtype === 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || m.text) : ''
 var budy = (typeof m.text == 'string' ? m.text : '')
@@ -65,8 +65,10 @@ const botNumber = ichi.user.id ? ichi.user.id.split(":")[0]+"@s.whatsapp.net" : 
 const isOwner = [ichi.user.id, ...global.ownerNumber].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
 const itsMe = m.sender == ichi.user.id ? true : false
 const text = q = args.join(" ")
-const quoted = m.quoted ? m.quoted : m
+const fatkuns = (m.quoted || m)
+const quoted = (fatkuns.mtype == 'buttonsMessage') ? fatkuns[Object.keys(fatkuns)[1]] : (fatkuns.mtype == 'templateMessage') ? fatkuns.hydratedTemplate[Object.keys(fatkuns.hydratedTemplate)[1]] : (fatkuns.mtype == 'product') ? fatkuns[Object.keys(fatkuns)[0]] : m.quoted ? m.quoted : m
 const mime = (quoted.msg || quoted).mimetype || ''
+const qmsg = (quoted.msg || quoted)
 const isMedia = /image|video|sticker|audio/.test(mime)
 const from = m.key.remoteJid
 const { type, quotedMsg, mentioned, now, fromMe } = m
@@ -139,6 +141,18 @@ if (m.isGroup && db.data.group[m.chat].antiviewone) {
        quoted: mek
        }).catch(_ => m.reply('Mungkin dah pernah dibuka bot'))
     }
+}
+
+const jimp_1 = require('jimp')
+async function pepe(media) {
+     const jimp = await jimp_1.read(media)
+     const min = jimp.getWidth()
+     const max = jimp.getHeight()
+     const cropped = jimp.crop(0, 0, min, max)
+     return {
+	img: await cropped.scaleToFit(720, 720).getBufferAsync(jimp_1.MIME_JPEG),
+	preview: await cropped.normalize().getBufferAsync(jimp_1.MIME_JPEG)
+     }
 }
 
 if (mode == 'self') {
@@ -418,10 +432,30 @@ case 'setppbot': {
   if (!quoted) return m.reply(`Kirim/m.reply Image Dengan Caption ${prefix + command}`)
   if (!/image/.test(mime)) return m.reply(`Kirim/reply Image Dengan Caption ${prefix + command}`)
   if (/webp/.test(mime)) return m.reply(`Kirim/reply Image Dengan Caption ${prefix + command}`)
-  let media = await ichi.downloadAndSaveMediaMessage(quoted)
-  m.reply(mess.wait)
- await ichi.updateProfilePicture(ichi.user.jid, media).then(() => reply('Success update profile picture bot')).catch(reply)
-// suport full image 
+  try {
+  let media = await ichi.downloadAndSaveMediaMessage(qmsg)
+  let botNumber = await ichi.user.jid
+  let { img } = await pepe(media)
+  await ichi.query({
+	tag: 'iq',
+	attrs: {
+	to: botNumber,
+	type:'set',
+	xmlns: 'w:profile:picture'
+	},
+	content: [
+	{
+		tag: 'picture',
+		attrs: { type: 'image' },
+		content: img
+	}
+	]
+	})
+	m.reply(`Sukses mengganti PP Bot`)
+	} catch (e) {
+	console.log(e)
+	m.reply(`Terjadi kesalahan, coba lagi nanti.`)
+	}
   }
   break
 case 'public': {
@@ -595,11 +629,29 @@ case 'setppgroup': case 'setppgrup': case 'setppgc': {
   if (!quoted) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
   if (!/image/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
   if (/webp/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
-  let media = await ichi.downloadAndSaveMediaMessage(quoted)
-    m.reply(mess.wait)
-  await ichi.updateProfilePicture(from, media).then(() => reply('Success update profile picture bot')).catch(reply)
-
-  //add code WM FDZ
+  try {
+  let media = await ichi.downloadAndSaveMediaMessage(qmsg)
+  let { img } = await pepe(media)
+  await ichi.query({
+	tag: 'iq',
+	attrs: {
+	to: m.chat,
+	type:'set',
+	xmlns: 'w:profile:picture'
+	},
+	content: [
+	{
+	tag: 'picture',
+	attrs: { type: 'image' },
+    content: img
+	}
+	]
+	})
+	m.reply(`Admin telah mengganti Icon Group!`)
+	} catch (e) {
+	console.log(e)
+	m.reply(`Terjadi kesalahan, coba lagi nanti.`)
+    }
   }
   break
 case 'tagall': {
@@ -671,25 +723,23 @@ case 'editinfo': {
 
 //Maker Menu
 case 'sticker': case 's': case 'stickergif': case 'sgif': {
+  if (!isPrem && global.db.data.users[m.sender].limit < 1) return m.reply(global.limitEnd)
   if (!quoted) return m.reply(`Balas Video/Image Dengan Caption ${prefix + command}`)
   m.reply(mess.wait)
   if (/image/.test(mime)) {
-  let media = await quoted.download()
+  let media = await ichi.downloadMediaMessage(qmsg)
   let encmedia = await ichi.sendImageAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
   await fs.unlinkSync(encmedia)
   } else if (/video/.test(mime)) {
-  if ((quoted.msg || quoted).seconds > 11) return m.reply('Maksimal 10 detik!')
-  let media = await quoted.download()
+  if (qmsg.seconds > 11) return m.reply('Maksimal 10 detik!')
+  let media = await ichi.downloadMediaMessage(qmsg)
   let encmedia = await ichi.sendVideoAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
   await fs.unlinkSync(encmedia)
   } else {
-  return `Kirim Gambar/Video Dengan Caption ${prefix + command}\nDurasi Video 1-9 Detik`
+  throw `Kirim Gambar/Video Dengan Caption ${prefix + command}\nDurasi Video 1-9 Detik`
   }
   }
   break
-
-
-//removebg
 case 'imagenobg': case 'removebg': case 'remove-bg': {
 	if (!quoted) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
 	if (!/image/.test(mime)) return m.reply(`Kirim/Reply Image Dengan Caption ${prefix + command}`)
@@ -851,31 +901,34 @@ case 'tomp4': case 'tovideo': {
   }
   break
 case 'toaud': case 'toaudio': {
-  if (!/video/.test(mime) && !/audio/.test(mime)) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
-  if (!quoted) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
+  if (!isPrem && global.db.data.users[m.sender].limit < 1) return m.reply(global.limitEnd)
+  if (!/video/.test(mime) && !/audio/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
+  if (!quoted) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan Audio Dengan Caption ${prefix + command}`
   m.reply(mess.wait)
-  let media = await quoted.download()
+  let media = await ichi.downloadMediaMessage(qmsg)
   let { toAudio } = require('../lib/converter')
   let audio = await toAudio(media, 'mp4')
   ichi.sendMessage(m.chat, {audio: audio, mimetype: 'audio/mpeg'}, { quoted : m })
   }
   break
 case 'tomp3': {
-  if (/document/.test(mime)) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
-  if (!/video/.test(mime) && !/audio/.test(mime)) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
-  if (!quoted) return `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
+  if (!isPrem && global.db.data.users[m.sender].limit < 1) return m.reply(global.limitEnd)
+  if (/document/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
+  if (!/video/.test(mime) && !/audio/.test(mime)) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
+  if (!quoted) throw `Kirim/Reply Video/Audio Yang Ingin Dijadikan MP3 Dengan Caption ${prefix + command}`
   m.reply(mess.wait)
-  let media = await quoted.download()
+  let media = await ichi.downloadMediaMessage(qmsg)
   let { toAudio } = require('../lib/converter')
   let audio = await toAudio(media, 'mp4')
   ichi.sendMessage(m.chat, {document: audio, mimetype: 'audio/mpeg', fileName: `Convert By ${ichi.user.name}.mp3`}, { quoted : m })
   }
   break
 case 'tovn': case 'toptt': {
-  if (!/video/.test(mime) && !/audio/.test(mime)) return `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
-  if (!quoted) return `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
+  if (!isPrem && global.db.data.users[m.sender].limit < 1) return m.reply(global.limitEnd)
+  if (!/video/.test(mime) && !/audio/.test(mime)) throw `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
+  if (!quoted) throw `Reply Video/Audio Yang Ingin Dijadikan VN Dengan Caption ${prefix + command}`
   m.reply(mess.wait)
-  let media = await quoted.download()
+  let media = await ichi.downloadMediaMessage(qmsg)
   let { toPTT } = require('../lib/converter')
   let audio = await toPTT(media, 'mp4')
   ichi.sendMessage(m.chat, {audio: audio, mimetype:'audio/mpeg', ptt:true }, {quoted:m})
@@ -904,6 +957,26 @@ case 'tourl': {
   m.reply(util.format(anu))
   }
   await fs.unlinkSync(media)
+  }
+  break
+case 'swm': case 'wm': case 'take': case 'colong': {
+  if (!isPrem && global.db.data.users[m.sender].limit < 1) return m.reply(global.limitEnd)
+  if (!quoted) return m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
+  if (!text) return m.reply(`Kirim perintah ${prefix + command} packname|author`)
+  if (!text.includes('|')) return m.reply(`Kirim perintah ${prefix + command} packname|author`)
+  m.reply (mess.wait)
+  if (/image/.test(mime)) {
+  let media = await ichi.downloadMediaMessage(qmsg)
+  let encmedia = await ichi.sendImageAsSticker(m.chat, media, m, { packname: text.split("|")[0], author: text.split("|")[1] })
+  await fs.unlinkSync(encmedia)
+  } else if (/video/.test(mime)) {
+  if (qmsg.seconds > 11) return m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
+  let media = await ichi.downloadMediaMessage(qmsg)
+  let encmedia = await ichi.sendVideoAsSticker(m.chat, media, m, { packname: text.split("|")[0], author: text.split("|")[1] })
+  await fs.unlinkSync(encmedia)
+  } else {
+  m.reply(`Kirim/Reply Gambar/Video Dengan Caption ${prefix + command}\n\nDurasi Sticker Video 1-9 Detik`)
+  }
   }
   break
 
