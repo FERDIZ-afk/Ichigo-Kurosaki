@@ -6,7 +6,7 @@
 */
 
 require('../settings')
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason, AnyMessageContent, generateForwardMessageContent, prepareWAMessageMedia, generateWAMessageFromContent, generateMessageID, downloadContentFromMessage, makeInMemoryStore, jidDecode, jidNormalizedUser, proto } = require("@adiwajshing/baileys")
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, AnyMessageContent, generateForwardMessageContent, prepareWAMessageMedia, generateWAMessageFromContent, generateMessageID, downloadContentFromMessage, makeInMemoryStore, jidDecode, jidNormalizedUser, proto } = require("@adiwajshing/baileys")
 const pino = require('pino')
 const fs = require('fs')
 const chalk = require('chalk')
