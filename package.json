@@ -1,7 +1,7 @@
 {
   "name": "ichigo-kurosaki",
-  "version": "1.0.0",
-  "description": "Bot Kok Wangsap",
+  "version": "2.0.0",
+  "description": "WhatsApp Bot With Baileys Multi Device",
   "main": "connect/index.js",
   "type": "commonjs",
   "scripts": {
